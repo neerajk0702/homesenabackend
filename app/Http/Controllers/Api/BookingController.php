@@ -83,7 +83,13 @@ class BookingController extends Controller
                 'code' => 200,
                 'status' => true,
                 'message' => 'User bookings retrieved successfully',
-                'body' => $bookings
+                // 'body' => $bookings
+                'body' => [
+                    'current_page' => $bookings->currentPage(),
+                    'per_page' => $bookings->perPage(),
+                    'total_bookings' => $bookings->total(),
+                    'bookings' => $bookings->items(),
+                ]
             ]);
         }         
             
@@ -92,7 +98,6 @@ class BookingController extends Controller
       // auth user cancel booking
       public function cancelBooking(Request $request, $id)
         {
-            // dd($request->all());
           $booking = Booking::find($id);
           if (!$booking) {
               return response()->json([
@@ -109,7 +114,8 @@ class BookingController extends Controller
                   'message' => 'Unauthorized to cancel this booking'
               ], 403);
           }
-        if($booking->status === 'PENDING' || $booking->status === 'CONFIRMED') {
+     // only allow cancellation for bookings with status PENDING or CONFIRMED and scheduled date is after today
+        if(($booking->scheduled_at->toDateString() > now()->toDateString()) && ($booking->status === 'PENDING' || $booking->status === 'CONFIRMED') ){
             $booking->status = 'CANCELLED';
             $booking->cancel_reason = $request->reason;
             $booking->save();
@@ -131,12 +137,11 @@ class BookingController extends Controller
                 ]
             ]);
          }
-
       } else {
               return response()->json([
                   'code' => 400,
                   'status' => false,
-                  'message' => 'Only PENDING or CONFIRMED bookings can be cancelled'
+                  'message' => 'Only PENDING or CONFIRMED bookings can be cancelled or scheduled date must be after today'
               ], 400);
           }
         }
@@ -164,6 +169,7 @@ class BookingController extends Controller
                     'message' => 'Unauthorized to reschedule this booking'
                 ], 403);
             }
+            // only allow rescheduling for bookings with status PENDING or CONFIRMED and scheduled date is after today
             if($booking->status === 'PENDING' || $booking->status === 'CONFIRMED') {
                  $oldscheduledAt = $booking->scheduled_at;
                  $booking->scheduled_at = $request->newScheduledAt;
@@ -215,6 +221,7 @@ class BookingController extends Controller
                     'message' => 'Unauthorized to confirm OTP for this booking'
                 ], 403);
             }
+            // only allow OTP confirmation for bookings with status CONFIRMED
             if ($booking->otp_code === $request->otpCode && $booking->status === 'CONFIRMED') {
                 $booking->status = 'ONGOING';
                 $booking->check_in_time = now()->format('Y-m-d H:i');
