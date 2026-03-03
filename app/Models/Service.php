@@ -10,11 +10,15 @@ class Service extends Model
         'name',
         'image',
         'description',
-        'base_price',
-        'duration_minutes',
+        // 'base_price',
+        // 'duration_minutes',
         'status',
         'new_flag' 
     ];
 
     // Define relationships and other model methods as needed   
+    public function experts()
+        {
+            return $this->belongsToMany(User::class, 'expert_services', 'service_id', 'expert_id');
+        }
 }

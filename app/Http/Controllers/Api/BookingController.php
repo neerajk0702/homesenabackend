@@ -3,254 +3,120 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\BookingService;
+use App\Services\ExpertSlotService;
 use Illuminate\Http\Request;
-use App\Http\Requests\Auth\BookingRequest;
 use App\Models\Booking;
+use App\Models\BookingSlot;
+use App\Http\Resources\BookingResource;
+use App\Services\FirebaseService;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 
 class BookingController extends Controller
 {
-    public function store(BookingRequest $request)
-        {
-            $otp = rand(100000, 999999);
-            $booking = $request->user()->bookings()->create([
-                'service_id' => $request->serviceId,
-                'expert_id' => 1, // For simplicity, assigning a default expert. In real scenario, you would assign based on availability.
-                'address_id' => $request->addressId,
-                'scheduled_at' => $request->scheduledAt,
-                'duration_hours' => $request->durationHours,
-                'payment_method' => $request->paymentMethod,
-                'notes' => $request->notes,
-                'total_amount' => 100.00, // For simplicity, assigning a default amount. In real scenario, you would calculate based on service and duration.
-                'otp_code' => $otp,
-            ]);
-        if(!$booking) {
-            return response()->json([
-                'code' => 500,
-                'status' => false,
-                'message' => 'Failed to create booking'
-            ], 500);
-        } else {
-           return response()->json([
-                    'code'=> 200,
-                    'status'=> true, 
-                    'message'=>'Booking created successfully', 
-                    'body' =>  $booking
-                ]);
-            }
-        }
+    protected $bookingService;
+    protected $expertService;
+    protected $firebase;
 
-        // get booking by id
+    public function __construct(
+        BookingService $bookingService,
+        ExpertSlotService $expertService,
+        FirebaseService $firebase
+      ){
+        $this->bookingService = $bookingService;
+        $this->expertService = $expertService;
+        $this->firebase = $firebase; 
+     }
+
+     // Create new booking with multiple slots
+    public function store(Request $request)
+    {
+        return $this->bookingService->createBooking($request);
+    }
+
+    // Expert accepts a slot
+    public function accept($slotId)
+    {
+        return $this->expertService->acceptSlot($slotId);
+
+        // return response()->json([
+        //     'status' => true,
+        //     'message' => 'Slot Accepted',
+        //     'data' => $slot
+        // ],200);
+    }
+
+    // get booking by id //need to checked
     public function getBookingById($id)
     {
-        $booking = Booking::with('user', 'service', 'address')->find($id);
-        // $booking = Booking::find($id);
+        $booking = Booking::with([
+                        'service',
+                        'address',
+                        'bookingSlots.expert'
+                        ])->find($id);
         if (!$booking) {
             return response()->json([
-                'code' => 404,
+                // 'code' => 404,
                 'status' => false,
                 'message' => 'Booking not found'
-            ], 404);
+            ], 200);
         } else {
             return response()->json([
                 'code' => 200,
                 'status' => true,
                 'message' => 'Booking retrieved successfully',
-                'body' => $booking
-            ]);
-        }
+                'data'   => new BookingResource($booking)
+            ],200);
+        }      
     }
 
-    // get auth user bookings
+      // get auth user bookings
     public function getUserBookings(Request $request)
-    {     
-         $query = auth()->user()
-                ->bookings()
-                ->join('services', 'bookings.service_id', '=', 'services.id')
-                ->select('services.name as service_name', 'bookings.*');
-
-            if ($request->filled('status')) {
-                $query->where('bookings.status', $request->status);
+     { 
+         $query  = Booking::with([
+                        'service',
+                        'address',
+                        'bookingSlots.expert'
+                        ])->where('user_id', auth()->id());
+         if ($request->status) {
+                $query->where('status', $request->status);
              }
-           $bookings = $query->latest()->paginate(10);
-           if($bookings->isEmpty()) {
+        $bookings = $query->latest()->paginate(10);
+
+        if($bookings->isEmpty()) {
             return response()->json([
-                'code' => 404,
+                // 'code' => 404,
                 'status' => false,
                 'message' => 'No bookings found for this user'
-            ], 404);
+            ], 200);
            } else {
             return response()->json([
-                'code' => 200,
                 'status' => true,
-                'message' => 'User bookings retrieved successfully',
-                // 'body' => $bookings
-                'body' => [
-                    'current_page' => $bookings->currentPage(),
-                    'per_page' => $bookings->perPage(),
-                    'total_bookings' => $bookings->total(),
-                    'bookings' => $bookings->items(),
-                ]
-            ]);
-        }         
-            
-      }    
+                'message' => 'User Bookings retrieved successfully',
+                'data' => BookingResource::collection($bookings)
+            ],200);
+           }
+      }
 
-      // auth user cancel booking
-      public function cancelBooking(Request $request, $id)
-        {
-          $booking = Booking::find($id);
-          if (!$booking) {
-              return response()->json([
-                  'code' => 404,
-                  'status' => false,
-                  'message' => 'Booking not found'
-              ], 404);
-          }
-  
-          if ($booking->user_id !== auth()->id()) {
-              return response()->json([
-                  'code' => 403,
-                  'status' => false,
-                  'message' => 'Unauthorized to cancel this booking'
-              ], 403);
-          }
-     // only allow cancellation for bookings with status PENDING or CONFIRMED and scheduled date is after today
-        if(($booking->scheduled_at->toDateString() > now()->toDateString()) && ($booking->status === 'PENDING' || $booking->status === 'CONFIRMED') ){
-            $booking->status = 'CANCELLED';
-            $booking->cancel_reason = $request->reason;
-            $booking->save();
-            if(!$booking) {
-                return response()->json([
-                    'code' => 500,
-                    'status' => false,
-                    'message' => 'Failed to cancel booking'
-                ], 500);
-            } else {
-            return response()->json([
-                'code' => 200,
-                'status' => true,
-                'message' => 'Booking cancelled successfully',
-                'body' => [
-                    'bookingId' => $booking->id,
-                    'status' => $booking->status,
-                    // 'refundStatus' => 
-                ]
-            ]);
-         }
-      } else {
-              return response()->json([
-                  'code' => 400,
-                  'status' => false,
-                  'message' => 'Only PENDING or CONFIRMED bookings can be cancelled or scheduled date must be after today'
-              ], 400);
-          }
-        }
-
-    // auth user reschedule booking
-        public function rescheduleBooking(Request $request, $id)
-          {
-            $request->validate([
-                // 'newScheduledAt' => 'required|date|after:'. now()->addHour(),
-                'newScheduledAt' => 'required|date|after:now',
-            ]);
-            $booking = Booking::find($id);
-            if (!$booking) {
-                return response()->json([
-                    'code' => 404,
-                    'status' => false,
-                    'message' => 'Booking not found'
-                ], 404);
-            }
-    
-            if ($booking->user_id !== auth()->id()) {
-                return response()->json([
-                    'code' => 403,
-                    'status' => false,
-                    'message' => 'Unauthorized to reschedule this booking'
-                ], 403);
-            }
-            // only allow rescheduling for bookings with status PENDING or CONFIRMED and scheduled date is after today
-            if($booking->status === 'PENDING' || $booking->status === 'CONFIRMED') {
-                 $oldscheduledAt = $booking->scheduled_at;
-                 $booking->scheduled_at = $request->newScheduledAt;
-                 $booking->save();
-                    if(!$booking) {
-                        return response()->json([
-                            'code' => 500,
-                            'status' => false,
-                            'message' => 'Failed to reschedule booking'
-                        ], 500);
-                        } else {
-                        return response()->json([
-                                'code' => 200,
-                                'status' => true,
-                                'message' => 'Booking rescheduled successfully',
-                                'body' => [
-                                    'bookingId' => $booking->id,
-                                    'oldTime' => $oldscheduledAt,
-                                    'newTime' => $booking->scheduled_at,
-                                    'status' => $booking->status,
-                                ]
-                          ]);
-                     }
-            } else {
-                return response()->json([
-                    'code' => 400,
-                    'status' => false,
-                    'message' => 'Only PENDING or CONFIRMED bookings can be rescheduled'
-                ], 400);
-            }
-        }
+         // auth user cancel booking slot
+      public function cancelBookingSlots(Request $request, $slotId)
+       {
+           return $this->bookingService->cancelSlots($request, $slotId);
         
-     // auth user confirm OTP
-        public function confirmOtp(Request $request, $id)   
+       }
+
+         // auth user reschedule booking
+      public function rescheduleBookingSlots(Request $request, $slotId)
         {
-            $booking = Booking::find($id);
-            if (!$booking) {
-                return response()->json([
-                    'code' => 404,
-                    'status' => false,
-                    'message' => 'Booking not found'
-                ], 404);
-            }
-    
-            if ($booking->user_id !== auth()->id()) {
-                return response()->json([
-                    'code' => 403,
-                    'status' => false,
-                    'message' => 'Unauthorized to confirm OTP for this booking'
-                ], 403);
-            }
-            // only allow OTP confirmation for bookings with status CONFIRMED
-            if ($booking->otp_code === $request->otpCode && $booking->status === 'CONFIRMED') {
-                $booking->status = 'ONGOING';
-                $booking->check_in_time = now()->format('Y-m-d H:i');
-                $booking->save();
-                    if(!$booking) {
-                        return response()->json([
-                            'code' => 500,
-                            'status' => false,
-                            'message' => 'Failed to confirm OTP'
-                        ], 500);
-                    } else {
-                    return response()->json([
-                        'code' => 200,
-                        'status' => true,
-                        'message' => 'OTP confirmed successfully',
-                        //  'body' => $booking->only(['id','status','check_in_time'])
-                         'body' => [
-                                    'bookingId' => $booking->id,
-                                    'checkInTime' => $booking->check_in_time,
-                                    'status' => $booking->status,
-                                ]
-                          ]);
-                 }
-            } else {
-                return response()->json([
-                    'code' => 400,
-                    'status' => false,
-                    'message' => 'Invalid OTP code or booking status is not CONFIRMED'
-                ], 400);
-            }
+            return $this->bookingService->rescheduleSlots($request, $slotId);
+
         }
+
+        public function confirmOtp(Request $request, $slotId)   
+        {
+            return $this->bookingService->verifyOtp($request, $slotId);
+        }
+
 }

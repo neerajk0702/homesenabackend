@@ -21,11 +21,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('address-list', [AuthController::class, 'addressList']);
     // boonking route
     Route::post('/booking/create', [BookingController::class, 'store']);
+    Route::post('/slots/{id}/accept', [BookingController::class, 'accept']); // Expert accepts a specific slot
     Route::get('/booking/user', [BookingController::class, 'getUserBookings']);
     Route::get('/booking/{id}', [BookingController::class, 'getBookingById']);
-    Route::put('/booking/{id}/cancel', [BookingController::class, 'cancelBooking']);
-    Route::put('/booking/{id}/reschedule', [BookingController::class, 'rescheduleBooking']);
-    Route::post('/booking/{id}/confirmOTP', [BookingController::class, 'confirmOtp']);
+    Route::put('/slots/{id}/cancel', [BookingController::class, 'cancelBookingSlots']);
+    // Route::put('/booking/{id}/cancel', [BookingController::class, 'cancelBookingSlot']);
+    Route::put('/slots/{id}/reschedule', [BookingController::class, 'rescheduleBookingSlots']);
+    Route::post('/slots/{id}/confirmOTP', [BookingController::class, 'confirmOtp']);
    
 
 });

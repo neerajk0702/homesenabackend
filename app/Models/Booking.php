@@ -10,47 +10,53 @@ class Booking extends Model
       protected $fillable = [   
         'booking_code',
         'user_id',
-        'expert_id',
         'service_id',
         'address_id',
-        'scheduled_at',
-        // 'duration_hours',
-        'status',
-        'total_amount',
-        'cancel_reason',
-        // 'payment_method',
-        'check_in_time',
         'notes',
-        'otp_code',
+        'status',
+        'booking_type',
+        'total_amount',
+        'booking_date', // created date
     ];
 
  // booking code generator
-   protected static function boot()
-    {
-        parent::boot();
-        static::creating(function ($booking) {
+    // protected static function booted()
+    // {
+    //     static::created(function ($booking) {
 
-            do {
-                $code = 'BK' . now()->format('md') . strtoupper(Str::random(4));
-            } while (self::where('booking_code', $code)->exists());
+    //         $booking->booking_code =
+    //             'BK' . now()->year .
+    //             str_pad($booking->id, 6, '0', STR_PAD_LEFT);
 
-            $booking->booking_code = $code;
-        });
-    }
+    //         $booking->save();
+    //     });
+    // }
 
-    public function user(){
-            return $this->belongsTo(User::class);
+        public function user()
+        {
+            return $this->belongsTo(User::class, 'user_id');
         }
 
-    public function service()
+        public function expert()
+        {
+            return $this->belongsTo(User::class, 'expert_id');
+        }
+        public function service()
         {
             return $this->belongsTo(Service::class);
         }
 
-    public function address()
-    {
-        return $this->belongsTo(Address::class);
-    }
+        public function address()
+        {
+            return $this->belongsTo(Address::class);
+        }
+
+        public function bookingSlots()
+        {
+            return $this->hasMany(BookingSlot::class);
+        }
+
+        
 }
 
     

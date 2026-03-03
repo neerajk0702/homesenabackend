@@ -24,10 +24,16 @@ class User extends Authenticatable
         'device_type',
         'device_id',
         'email',
+        'email_verified_at',
         'password',
+        'remember_token',
         'phone',
         'otp',
         'otp_expires_at',
+        'role',
+        'is_available',
+        'fcm_token',
+      
     ];
 
     /**
@@ -62,5 +68,27 @@ class User extends Authenticatable
      public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    // public function services()
+    // {
+    //     return $this->belongsToMany(Service::class);
+    // }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class,'expert_services','expert_id');
+    }
+
+    public function expertSlots()
+    {
+        return $this->hasMany(BookingSlot::class,'expert_id');
+    }
+
+    // scope for available experts
+    public function scopeExperts($query)
+    {
+        return $query->where('role', 'expert')
+                    ->where('is_active', 1);
     }
 }
