@@ -2,4 +2,3 @@
 !private/
 !public/
 !.gitignore
-storage/app/firebase/firebase_credentials.json
