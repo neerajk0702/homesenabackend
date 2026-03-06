@@ -33,6 +33,11 @@ class User extends Authenticatable
         'role',
         'is_available',
         'fcm_token',
+        'current_latitude' ,
+        'current_longitude' ,
+        'is_online',
+        'device_type',
+        'last_location_update' 
       
     ];
 
@@ -75,9 +80,14 @@ class User extends Authenticatable
     //     return $this->belongsToMany(Service::class);
     // }
 
-    public function services()
+    // public function services()
+    // {
+    //     return $this->belongsToMany(Service::class,'service_experts','expert_id');
+    // }
+
+    public function services() 
     {
-        return $this->belongsToMany(Service::class,'expert_services','expert_id');
+        return $this->belongsToMany(Service::class, 'service_experts', 'expert_id', 'service_id');
     }
 
     public function expertSlots()

@@ -14,7 +14,9 @@ class Address extends Model
         'save_as',
         'pets',
         'address_lat',
-        'address_long'
+        'address_long',
+        'accuracy',
+        'device_type',     
     ];
 
     public function user()

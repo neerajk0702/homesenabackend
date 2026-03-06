@@ -82,7 +82,7 @@ class BookingService
     }
 
     // nearby expert finder
-    public function getNearbyExperts($addressId, $radiusKm = 10)
+    public function getNearbyExperts($addressId, $radiusKm = 1)
      {
                 // Get address
             $address = Address::findOrFail($addressId);

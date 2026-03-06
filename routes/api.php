@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\LocationController;
 
 // Route::post('send-otp', [AuthController::class, 'sendOtp']);
 Route::post('login', [AuthController::class, 'sendOtp']);
@@ -28,6 +29,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::put('/booking/{id}/cancel', [BookingController::class, 'cancelBookingSlot']);
     Route::put('/slots/{id}/reschedule', [BookingController::class, 'rescheduleBookingSlots']);
     Route::post('/slots/{id}/confirmOTP', [BookingController::class, 'confirmOtp']);
+    //location route
+    Route::get('/location/available-services', [LocationController::class, 'nearbyServices']);  
+    Route::post('/location/update', [LocationController::class, 'updateLocation']); // user update location
+    Route::post('/location/expert-update', [LocationController::class, 'expertUpdateLocation']); // expert update location
+    Route::get('/location/expert-tracking/{slotId}', [LocationController::class, 'expertTracking']);
+   
+
    
 
 });

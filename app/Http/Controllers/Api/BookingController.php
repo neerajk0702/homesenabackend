@@ -113,7 +113,8 @@ class BookingController extends Controller
             return $this->bookingService->rescheduleSlots($request, $slotId);
 
         }
-
+        
+      //expert confirm otp for booking slot
         public function confirmOtp(Request $request, $slotId)   
         {
             return $this->bookingService->verifyOtp($request, $slotId);

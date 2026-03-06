@@ -19,6 +19,6 @@ class Service extends Model
     // Define relationships and other model methods as needed   
     public function experts()
         {
-            return $this->belongsToMany(User::class, 'expert_services', 'service_id', 'expert_id');
+            return $this->belongsToMany(User::class, 'service_experts', 'service_id', 'expert_id');
         }
 }
