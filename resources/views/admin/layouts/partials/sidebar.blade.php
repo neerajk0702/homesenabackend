@@ -43,13 +43,38 @@
                 <div data-i18n="Expert">Experts</div>
             </a>
         </li>
-        {{-- Services --}}
+        {{-- Service Management--}}
         <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon icon-base ri ri-customer-service-2-line"></i>
+                <div data-i18n="Service Management">Service Management</div>
+            </a>
+
+            <ul class="menu-sub">
+                {{-- Services --}}
+                <li class="menu-item">
+                    <a href="{{ route('admin.services.index') }}" class="menu-link">
+                        <i class="menu-icon icon-base ri ri-customer-service-2-line"></i>
+                        <div data-i18n="Services">Services</div>
+                    </a>
+                </li>
+
+                {{-- Service Durations --}}
+                <li class="menu-item">
+                    <a href="{{ route('admin.service_variants.index') }}" class="menu-link">
+                        <i class="menu-icon icon-base ri ri-timer-line"></i>
+                        <div data-i18n="Service Durations">Service Durations</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {{-- Services --}}
+        <!-- <li class="menu-item">
             <a href="{{ route('admin.services.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ri ri-customer-service-2-line"></i>
                 <div data-i18n="Service">Services</div>
             </a>
-        </li>
+        </li> -->
         {{-- Time slots --}}
         <li class="menu-item">
             <a href="{{ route('admin.time_slots.index') }}" class="menu-link">
@@ -58,12 +83,12 @@
             </a>
         </li>
         {{-- service durations --}}
-        <li class="menu-item">
+        <!-- <li class="menu-item">
             <a href="{{ route('admin.service_variants.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ri ri-timer-line"></i>
                 <div data-i18n="Service Duration">Service Durations</div>
             </a>
-        </li>
+        </li> -->
         {{-- Bookings --}}
         <li class="menu-item">
             <a href="{{ route('admin.bookings.index') }}" class="menu-link">

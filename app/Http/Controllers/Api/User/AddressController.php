@@ -29,7 +29,7 @@ class AddressController extends Controller
             'flat_no' => 'nullable|string|max:100',
             'landmark' => 'nullable|string|max:255',
             'save_as' => 'nullable|in:home,office,other',
-            // 'pets' => 'nullable|boolean',
+             'pets' => 'nullable|boolean',
             'address_lat' => 'nullable|numeric',
             'address_long' => 'nullable|numeric',
         ]);
@@ -102,7 +102,7 @@ class AddressController extends Controller
             'flat_no' => 'nullable|string|max:100',
             'landmark' => 'nullable|string|max:255',
             'save_as' => 'nullable|string',
-            'pets' => 'nullable',
+            'pets' => 'nullable|boolean',
             'address_lat' => 'nullable|numeric',
             'address_long' => 'nullable|numeric'
         ]);
