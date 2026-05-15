@@ -34,8 +34,8 @@ class SendPushNotification extends Command
                     $tokens = UserDevice::whereHas('user', function ($q) use ($notification) {
                         $q->where('role', $notification->user_type);
                     })
-                       ->whereNotNull('token')
-                        ->pluck('token')
+                       ->whereNotNull('fcm_token')
+                        ->pluck('fcm_token')
                         ->toArray();
                 }  
                 //  SINGLE USER    
@@ -44,7 +44,7 @@ class SendPushNotification extends Command
                 //         ->whereHas('user', function ($q) use ($notification) {
                 //             $q->where('role', $notification->user_type);
                 //         })
-                //         ->pluck('token')
+                //         ->pluck('fcm_token')
                 //         ->toArray();
                 // }
 
@@ -78,11 +78,12 @@ class SendPushNotification extends Command
                         ->pluck('users.id');
 
                     $tokens = UserDevice::whereIn('user_id', $userIds)
-                        ->whereNotNull('token')
-                        ->pluck('token')
+                        ->whereNotNull('fcm_token')
+                        ->pluck('fcm_token')
                         ->toArray();
                 }
                 $tokens = array_values(array_unique(array_filter($tokens)));
+                $message = trim(strip_tags($notification->message));
                 //  SEND PUSH
                 if (count($tokens)) {
                     // Send in chunks (FCM limit safe)
@@ -90,7 +91,7 @@ class SendPushNotification extends Command
                         $firebase->sendBulkNotification(
                             $tokenChunk,
                             $notification->title,
-                            $notification->message,
+                            $message,
                             [
                                 'notification_id' => (string) $notification->id
                             ],
@@ -106,13 +107,17 @@ class SendPushNotification extends Command
                 ]);
 
             } catch (\Exception $e) {
-                 \Log::error('Push Notification Error', [
-                    'notification_id' => $notification->id,
-                    'message' => $e->getMessage()
+                   \Log::error('Push Notification Failed-----------------------', [
+                    'notification_id' => $notification->id ?? null,
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
                 ]);
+             return Command::FAILURE;
             }
         }
-    //   return Command::SUCCESS;
-        return true;
+       return Command::SUCCESS;
+        
     }
 }

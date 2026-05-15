@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('app:notify-nearby-experts-before-slot')->everyMinute();
+Schedule::command('app:send-push-notification')->everyTwoMinutes();
