@@ -175,6 +175,39 @@
                             @enderror
                         </div>
                     </div>
+                    <div class="col-lg-4 col-md-6 col-12 mb-3">
+                        <label class="form-label">Service Location</label>
+
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ri-map-pin-line"></i>
+                            </span>
+
+                            <select class="form-select @error('service_location_id') is-invalid @enderror"
+                                name="service_location_id">
+
+                                <option selected disabled>
+                                    Select Service Location
+                                </option>
+
+                                @foreach ($serviceLocations as $location)
+                                    <option value="{{ $location->id }}"
+                                        {{ old('service_location_id', $expert->expertDetail?->service_location_id ?? '') == $location->id ? 'selected' : '' }}>
+
+                                        {{ $location->address }}
+
+                                    </option>
+                                @endforeach
+
+                            </select>
+
+                            @error('service_location_id')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
                     <!-- Status -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Status</label>

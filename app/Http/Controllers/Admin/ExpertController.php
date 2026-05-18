@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ExpertDetail;
 use App\Models\ExpertEmergencyContact;
 use App\Models\TrainingCenter;
+use App\Models\ServiceLocation;
 use App\Models\User;
 use App\Models\UserDevice;
 use Illuminate\Http\Request;
@@ -68,10 +69,19 @@ class ExpertController extends Controller
     public function create()
     {
         $expert = new User;
-        $expert->setRelation('expertDetail', new ExpertDetail); //  important
+
+        $expert->setRelation('expertDetail', new ExpertDetail);
+
         $trainingCenters = TrainingCenter::select('id', 'name')->get();
 
-        return view('admin.experts.form', compact('expert', 'trainingCenters'));
+        $serviceLocations = ServiceLocation::where('status', 1)
+            ->select('id', 'address')
+            ->get();
+        return view('admin.experts.form', compact(
+            'expert',
+            'trainingCenters',
+            'serviceLocations'
+        ));
     }
 
     // EDIT
@@ -80,13 +90,23 @@ class ExpertController extends Controller
         if (! $expert->expertDetail) {
             $expert->expertDetail()->create([]);
         }
+
         $expert->load([
-            'expertDetail.trainingCenter',     // training center
-            'expertDetail.emergencyContacts',   // emergency contacts
+            'expertDetail.trainingCenter',
+            'expertDetail.serviceLocation',
+            'expertDetail.emergencyContacts',
         ]);
+
         $trainingCenters = TrainingCenter::select('id', 'name')->get();
 
-        return view('admin.experts.form', compact('expert', 'trainingCenters'));
+        $serviceLocations = ServiceLocation::where('status', 1)
+            ->select('id', 'address')
+            ->get();
+        return view('admin.experts.form', compact(
+            'expert',
+            'trainingCenters',
+            'serviceLocations'
+        ));
     }
 
     // STORE
@@ -152,6 +172,7 @@ class ExpertController extends Controller
                     [
                         'registration_code' => 'EXP-' . rand(100000, 999999),
                         'training_center_id' => $data['training_center_id'],
+                        'service_location_id' => $data['service_location_id'],
                         'is_online' => $data['is_online'],
 
                         // ✅ KYC
@@ -159,7 +180,7 @@ class ExpertController extends Controller
                         'aadhar_back' => $aadharBack,
                         'pan_number' => $data['pan_number'] ?? null,
                         'aadhar_number' => $data['aadhar_number'] ?? null,
-                        
+
 
                         // ✅ BANK
                         'account_holder_name' => $data['account_holder_name'] ?? null,
@@ -292,6 +313,7 @@ class ExpertController extends Controller
                     ['user_id' => $expert->id],
                     [
                         'training_center_id' => $data['training_center_id'],
+                        'service_location_id' => $data['service_location_id'],
                         'is_online' => $data['is_online'],
 
                         // ✅ KYC
@@ -336,6 +358,7 @@ class ExpertController extends Controller
             'email' => 'nullable|email|unique:users,email,' . $id,
             'password' => 'nullable|min:8',
             'device_type' => $id ? 'nullable' : 'required|in:android,ios',
+            'service_location_id' => 'required|exists:service_locations,id',
             'device_id' => $id ? 'nullable' : 'required',
             'status' => 'required|in:0,1',
             'is_online' => 'required',
