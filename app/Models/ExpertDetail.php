@@ -10,17 +10,16 @@ class ExpertDetail extends Model
         'id',
         'user_id',
         'registration_code',
-        // 'onboarding_agent_code',
+
+        // Training / Service
         'training_center_id',
-        // 'work_schedule',
-        // 'is_available',
+        'service_location_id',
+
         'is_online',
         'approval_status',
         'approved_at',
         'approved_by',
-        // 'current_latitude' ,
-        // 'current_longitude' ,
-        // 'last_location_update'  
+
         // ✅ KYC
         'aadhar_front',
         'aadhar_back',
@@ -34,18 +33,46 @@ class ExpertDetail extends Model
         'bank_name',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | User Relation
+    |--------------------------------------------------------------------------
+    */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Training Center Relation
+    |--------------------------------------------------------------------------
+    */
     public function trainingCenter()
     {
         return $this->belongsTo(TrainingCenter::class);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Service Location Relation
+    |--------------------------------------------------------------------------
+    */
+    public function serviceLocation()
+    {
+        return $this->belongsTo(ServiceLocation::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Emergency Contacts
+    |--------------------------------------------------------------------------
+    */
     public function emergencyContacts()
     {
-        return $this->hasMany(ExpertEmergencyContact::class, 'expert_detail_id');
+        return $this->hasMany(
+            ExpertEmergencyContact::class,
+            'expert_detail_id'
+        );
     }
 }
