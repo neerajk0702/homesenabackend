@@ -46,22 +46,8 @@
 
             </div>
         </div>
-        <hr class="my-0">
-        <!-- Show Entries -->
-        <div class="row px-4 py-3 align-items-center">
-            <!-- <div class="col-md-6">
-                                                                                        <div class="d-flex align-items-center gap-2">
-                                                                                            <span>Show</span>
-                                                                                            <select class="form-select form-select-sm" style="width:80px;">
-                                                                                                <option>7</option>
-                                                                                                <option>10</option>
-                                                                                                <option>25</option>
-                                                                                                <option>50</option>
-                                                                                            </select>
-                                                                                            <span>entries</span>
-                                                                                        </div>
-                                                                                    </div> -->
-        </div>
+        <hr class="my-0 mb-2">
+
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
             <table class="table table-hover align-middle table-bordered">
@@ -100,10 +86,25 @@
                                 {{ \Illuminate\Support\Str::limit(strip_tags($promotion->description), 60) }}
                             </td>
                             <!-- DATE -->
-                            <td>
+                            <!-- <td>
                                 {{ $promotion->promotion_datetime
                                     ? \Carbon\Carbon::parse($promotion->promotion_datetime)->format('d M Y, h:i A')
                                     : '-' }}
+                            </td> -->
+                            <td>
+                                @if ($promotion->promotion_datetime)
+                                    @php
+                                        $promotionDate = \Carbon\Carbon::parse($promotion->promotion_datetime);
+                                    @endphp
+                                    {{ $promotionDate->format('d M Y, h:i A') }}
+                                    @if ($promotionDate->isPast())
+                                        <span class="text-danger ms-2">
+                                            (Expired)
+                                        </span>
+                                    @endif
+                                @else
+                                    -
+                                @endif
                             </td>
 
                             <!-- STATUS TOGGLE -->

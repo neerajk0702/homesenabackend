@@ -46,22 +46,7 @@
             </form>
 
         </div>
-        <hr class="my-0">
-        <!-- Show Entries -->
-        <div class="row px-4 py-3 align-items-center">
-            {{-- <div class="col-md-6">
-                                                                                                    <div class="d-flex align-items-center gap-2">
-                                                                                                        <span>Show</span>
-                                                                                                        <select class="form-select form-select-sm" style="width:80px;">
-                                                                                                            <option>7</option>
-                                                                                                            <option>10</option>
-                                                                                                            <option>25</option>
-                                                                                                            <option>50</option>
-                                                                                                        </select>
-                                                                                                        <span>entries</span>
-                                                                                                    </div>
-                                                                                                </div> --}}
-        </div>
+        <hr class="my-0 mb-2">
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
             <table class="table table-hover align-middle table-bordered">

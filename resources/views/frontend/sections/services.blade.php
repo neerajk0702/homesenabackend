@@ -1,78 +1,92 @@
- <!-- Services Section -->
- <section id="services" class="services-section text-center">
+ <!-- Services Section — Arc Focus Carousel -->
+ <section id="services" class="services-section">
 
      <div class="container-fluid">
 
-         <h3 class="section-title">Our Services</h3>
-         <p class="section-subtitle">
+         <h3 class="arc-section-heading">Our Services</h3>
+         <p class="arc-section-subheading">
              We provide on-demand, verified, and trained home help services at your doorstep.
          </p>
-         <br>
-         <div class="services-slider" id="servicesSlider">
 
-             <div class="services-track">
+         <!-- Arc Carousel -->
+         <div class="arc-carousel" id="arcCarousel">
 
-                 <div class="service-item">
-                     <div class="service-img-box">
-                         <img src="{{ asset('landing/img/service/01.jpeg') }}" alt="Service Image">
-                         <h4>Bathroom Cleaning</h4>
-                     </div>
-                 </div>
+             <!-- Carousel viewport -->
+             <div class="arc-carousel__viewport">
 
-                 <div class="service-item">
-                     <div class="service-img-box">
-                         <img src="{{ asset('landing/img/service/02.jpeg') }}" alt="Service Image">
-                         <h4>Laundry</h4>
+                 <div class="arc-carousel__item" data-index="0">
+                     <div class="arc-card">
+                         <img src="{{ asset('landing/img/service/01.jpeg') }}" alt="Bathroom Cleaning">
                      </div>
                  </div>
 
-                 <div class="service-item">
-                     <div class="service-img-box">
-                         <img src="{{ asset('landing/img/service/03.jpeg') }}" alt="Service Image">
-                         <h4>Utensils</h4>
+                 <div class="arc-carousel__item" data-index="1">
+                     <div class="arc-card">
+                         <img src="{{ asset('landing/img/service/02.jpeg') }}" alt="Laundry">
                      </div>
                  </div>
 
-                 <div class="service-item">
-                     <div class="service-img-box">
-                         <img src="{{ asset('landing/img/service/04.png') }}" alt="Service Image">
-                         <h4>Outdoor Cleaning</h4>
+                 <div class="arc-carousel__item" data-index="2">
+                     <div class="arc-card">
+                         <img src="{{ asset('landing/img/service/03.jpeg') }}" alt="Utensils">
                      </div>
                  </div>
 
-                 <div class="service-item">
-                     <div class="service-img-box">
-                         <img src="{{ asset('landing/img/service/05.jpeg') }}" alt="Service Image">
-                         <h4>Kitchen Cleaning</h4>
+                 <div class="arc-carousel__item" data-index="3">
+                     <div class="arc-card">
+                         <img src="{{ asset('landing/img/service/04.png') }}" alt="Outdoor Cleaning">
                      </div>
                  </div>
 
-                 <div class="service-item">
-                     <div class="service-img-box">
-                         <img src="{{ asset('landing/img/service/06.jpeg') }}" alt="Service Image">
-                         <h4>Window Cleaning</h4>
+                 <div class="arc-carousel__item" data-index="4">
+                     <div class="arc-card">
+                         <img src="{{ asset('landing/img/service/05.jpeg') }}" alt="Kitchen Cleaning">
                      </div>
                  </div>
 
-                 <div class="service-item">
-                     <div class="service-img-box">
-                         <img src="{{ asset('landing/img/service/07.png') }}" alt="Service Image">
-                         <h4>Sweeping</h4>
+                 <div class="arc-carousel__item" data-index="5">
+                     <div class="arc-card">
+                         <img src="{{ asset('landing/img/service/06.jpeg') }}" alt="Window Cleaning">
                      </div>
                  </div>
-                 <div class="service-item">
-                     <div class="service-img-box">
-                         <img src="{{ asset('landing/img/service/08.png') }}" alt="Service Image">
-                         <h4>Fan Cleaning</h4>
+
+                 <div class="arc-carousel__item" data-index="6">
+                     <div class="arc-card">
+                         <img src="{{ asset('landing/img/service/07.png') }}" alt="Sweeping">
                      </div>
                  </div>
-                 <div class="service-item">
-                     <div class="service-img-box">
-                         <img src="{{ asset('landing/img/service/09.png') }}" alt="Service Image">
-                         <h4>Kitchen Prep</h4>
+
+                 <div class="arc-carousel__item" data-index="7">
+                     <div class="arc-card">
+                         <img src="{{ asset('landing/img/service/08.png') }}" alt="Fan Cleaning">
                      </div>
                  </div>
+
+                 <div class="arc-carousel__item" data-index="8">
+                     <div class="arc-card">
+                         <img src="{{ asset('landing/img/service/09.png') }}" alt="Kitchen Prep">
+                     </div>
+                 </div>
+
              </div>
+
+             <!-- Content area below the arc -->
+             <div class="arc-carousel__info">
+                 <h4 class="arc-carousel__title" id="arcActiveTitle">Bathroom Cleaning</h4>
+                 <p class="arc-carousel__subtitle" id="arcActiveSubtitle">Sparkling clean bathrooms with deep sanitization</p>
+             </div>
+
+             <!-- Navigation arrows -->
+             <button class="arc-carousel__arrow arc-carousel__arrow--left" id="arcPrev" aria-label="Previous service">
+                 <i class="fa fa-chevron-left"></i>
+             </button>
+             <button class="arc-carousel__arrow arc-carousel__arrow--right" id="arcNext" aria-label="Next service">
+                 <i class="fa fa-chevron-right"></i>
+             </button>
+
+             <!-- Dot indicators -->
+             <div class="arc-carousel__dots" id="arcDots"></div>
+
          </div>
 
      </div>

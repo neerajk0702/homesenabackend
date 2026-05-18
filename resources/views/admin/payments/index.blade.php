@@ -46,8 +46,7 @@
 
     </div>
 
-    <hr class="my-0">
-
+    <hr class="my-0 mb-2">
     <!-- TABLE -->
     <div class="table-responsive px-4 pb-3">
         <table class="table table-hover align-middle table-bordered">

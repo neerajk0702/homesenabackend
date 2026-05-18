@@ -5,7 +5,7 @@
 
             <!-- Logo -->
             <div class="footer-logo text-center text-md-start">
-                <h2>HOMESENA</h2>
+                <img src="{{ asset('landing/img/footer_logo.png') }}" alt="Homesena" class="footer-logo-img">
                 <p>Your trusted partner for professional home services.</p>
             </div>
 

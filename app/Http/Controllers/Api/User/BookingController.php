@@ -536,11 +536,11 @@ class BookingController extends Controller
             ->first();
         if (!$slot) {
             return response()->json([
-                'code' => 404,
+                'code' => 422,
                 'status' => false,
                 'message' => 'Slot not found',
                 'data' => (object) []
-            ], 404);
+            ], 422);
         }
         return response()->json([
             'code' => 200,
@@ -573,8 +573,8 @@ class BookingController extends Controller
                         ->where('start_time', '>=', now());
                     break;
                 case 'upcoming':
-                    $query->where('status', 'accepted')
-                        ->where('start_time', '>=', now());
+                    $query->where('status', 'accepted');
+                        // ->where('start_time', '>=', now());
                     break;
                 case 'completed':
                     $query->where('status', 'completed');
@@ -586,7 +586,6 @@ class BookingController extends Controller
                     // optional: return all user slots
                     break;
             }
-
         }
         $slots = $query->orderBy('date')
             ->orderBy('start_time')

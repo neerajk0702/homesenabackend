@@ -56,10 +56,7 @@
             </form>
 
         </div>
-        <hr class="my-0">
-        <!-- Show Entries -->
-        <div class="row px-4 py-3 align-items-center">
-        </div>
+        <hr class="my-0 mb-2">
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
             <table class="table table-hover align-middle table-bordered">
