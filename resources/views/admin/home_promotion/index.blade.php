@@ -86,10 +86,25 @@
                                 {{ \Illuminate\Support\Str::limit(strip_tags($promotion->description), 60) }}
                             </td>
                             <!-- DATE -->
-                            <td>
+                            <!-- <td>
                                 {{ $promotion->promotion_datetime
                                     ? \Carbon\Carbon::parse($promotion->promotion_datetime)->format('d M Y, h:i A')
                                     : '-' }}
+                            </td> -->
+                            <td>
+                                @if ($promotion->promotion_datetime)
+                                    @php
+                                        $promotionDate = \Carbon\Carbon::parse($promotion->promotion_datetime);
+                                    @endphp
+                                    {{ $promotionDate->format('d M Y, h:i A') }}
+                                    @if ($promotionDate->isPast())
+                                        <span class="text-danger ms-2">
+                                            (Expired)
+                                        </span>
+                                    @endif
+                                @else
+                                    -
+                                @endif
                             </td>
 
                             <!-- STATUS TOGGLE -->

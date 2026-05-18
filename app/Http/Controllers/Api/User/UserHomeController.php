@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Service;
 use App\Models\Address;
 use App\Models\HomePromotion;
+use App\Models\ReferEarnSetting;
 use App\Http\Resources\ServiceResource;
 class UserHomeController extends Controller
 {
@@ -35,7 +36,9 @@ class UserHomeController extends Controller
         $services = Service::with('activeVariants')->where('status', 1)->get();
         $allServices = ServiceResource::collection($services);
         $superSavePack = HomePromotion::where('status', 1)->where('promotion_datetime','>=',now())->first();
-        $referral_reward = 100;
+        $superSavePack->image = $superSavePack->image ? asset('public/' . $superSavePack->image) : null;
+        // $referral_reward = 100;
+        $referral_reward = ReferEarnSetting::first() ? ReferEarnSetting::first()->referral_amount : 100;
         return response()->json([
                 'status' => true,
                 'code' => 200,

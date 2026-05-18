@@ -108,4 +108,100 @@ class BookingController extends Controller
 
         return view('admin.bookings.slot_notifications', compact('notifications'));
     }
+
+    public function refundBooking($id)
+    {
+        try {
+            $booking = Booking::findOrFail($id);
+            $refundAmount = $booking->total_price;
+            $paymentId = $booking->payment_id;
+            $refund = $this->refundPayment(
+                $paymentId,
+                $refundAmount
+            );
+            if (!$refund['status']) {
+                return back()->with('error', $refund['message']);
+            }
+            $booking->status = 'refunded';
+            $booking->save();
+            return back()->with('success', 'Booking refunded successfully');
+        } catch (\Exception $e) {
+            \Log::error('Refund Exception: ' . $e->getMessage());
+            return back()->with('error', 'Refund Failed: ' . $e->getMessage());
+        }
+    }
+
+    public function refundBookingSlot($id)
+    {
+        try {
+            $slotBooking = BookingSlot::with('booking')->findOrFail($id);
+            $refundAmount = $slotBooking->price;
+            $paymentId = $slotBooking->booking->payment_id;
+            $refund = $this->refundPayment(
+                $paymentId,
+                $refundAmount
+            );
+            if (!$refund['status']) {
+                return back()->with('error', $refund['message']);
+            }
+            // cancel current slot
+            $slotBooking->status = 'cancelled';
+            $slotBooking->save();
+            $booking = $slotBooking->booking;
+
+            // check active slots
+            $remainingSlots = $booking->bookingSlots()
+                ->where('status', '!=', 'cancelled')
+                ->count();
+
+            // if all slots cancelled then cancel booking also
+            if ($remainingSlots == 0) {
+                $booking->status = 'cancelled';
+                $booking->save();
+            }
+            return back()->with('success', 'Booking refunded successfully');
+        } catch (\Exception $e) {
+            \Log::error('Refund Exception: ' . $e->getMessage());
+            return back()->with('error', 'Refund Failed: ' . $e->getMessage());
+        }
+    }
+
+    private function refundPayment($paymentId, $refundAmount)
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "https://api.razorpay.com/v1/payments/{$paymentId}/refund",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode([
+                "amount" => $refundAmount * 100,
+                "speed" => "normal"
+            ]),
+            CURLOPT_HTTPHEADER => [
+                "Content-Type: application/json",
+                "Authorization: Basic " . base64_encode(
+                    env('RAZORPAY_KEY') . ':' . env('RAZORPAY_SECRET')
+                )
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+        $error = curl_error($curl);
+        curl_close($curl);
+
+        if ($error) {
+            \Log::error('Refund Failed: ' . $error);
+            return [
+                'status' => false,
+                'message' => $error
+            ];
+        }
+        $api_response = json_decode($response, true);
+        \Log::info('Refund processed successfully', $api_response);
+        return [
+            'status' => true,
+            'data' => $api_response
+        ];
+    }
+
 }
