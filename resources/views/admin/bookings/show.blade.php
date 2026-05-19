@@ -24,6 +24,25 @@
                 <i class="ri-arrow-left-line me-1"></i> Back
             </a>
         </div>
+        {{-- SUCCESS MESSAGE --}}
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success!</strong> {{ session('success') }}
+
+                <button type="button" class="btn-close" data-bs-dismiss="alert">
+                </button>
+            </div>
+        @endif
+
+        {{-- ERROR MESSAGE --}}
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error!</strong> {{ session('error') }}
+
+                <button type="button" class="btn-close" data-bs-dismiss="alert">
+                </button>
+            </div>
+        @endif
         <hr class="my-0">
         <!-- booking Info -->
         <div class="row px-4 py-3">
@@ -126,69 +145,151 @@
                         @forelse($slots as $slot)
                             <tr>
                                 <td>{{ $slots->firstItem() + $loop->index }}</td>
+
                                 <td>
-                                    <span class="fw-semibold">{{ $slot->expert?->name ?? 'N/A' }}</span>
+                                    <span class="fw-semibold">
+                                        {{ $slot->expert?->name ?? 'N/A' }}
+                                    </span>
                                 </td>
-                                <td>{{ \Carbon\Carbon::parse($slot->date)->format('d M Y') }}</td>
-                                <td> {{ \Carbon\Carbon::parse($slot->start_time)->format(' h:i A') }} </td>
-                                <td> {{ \Carbon\Carbon::parse($slot->end_time)->format(' h:i A') }} </td>
+
+                                <td>
+                                    {{ \Carbon\Carbon::parse($slot->date)->format('d M Y') }}
+                                </td>
+
+                                <td>
+                                    {{ \Carbon\Carbon::parse($slot->start_time)->format('h:i A') }}
+                                </td>
+
+                                <td>
+                                    {{ \Carbon\Carbon::parse($slot->end_time)->format('h:i A') }}
+                                </td>
+
                                 <td>{{ $slot->duration }}</td>
+
                                 <td>{{ $slot->otp_code }}</td>
+
                                 <td>{{ $slot->price }}</td>
-                                <td>{{ \Carbon\Carbon::parse($slot->check_in_time)->format('d M Y h:i A') }}</td>
+
+                                <td>
+                                    @if ($slot->check_in_time)
+                                        {{ \Carbon\Carbon::parse($slot->check_in_time)->format('d M Y h:i A') }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+
                                 <td>
                                     <span class="badge rounded-pill bg-label-{{ statusColor($slot->status) }}">
                                         {{ ucfirst(str_replace('_', ' ', $slot->status)) }}
                                     </span>
                                 </td>
+
                                 <td>
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
                                             data-bs-toggle="dropdown">
                                             <i class="ri-more-2-line"></i>
                                         </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <!-- refund -->
-                                            <li>
-                                                <form action="{{ route('admin.refund.process', $slot->id) }}" method="POST">
-                                                    @csrf
 
-                                                    <button type="submit" class="dropdown-item">
-                                                        <i class="ri-user-add-line me-2"></i>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+
+                                            <!-- Refund -->
+                                            @if ($booking->payment_status == 'paid')
+                                                <li>
+                                                    <button type="button" class="dropdown-item" data-bs-toggle="modal"git 
+                                                        data-bs-target="#refundModal{{ $slot->id }}">
+
+                                                        <i class="ri-bank-card-line me-2"></i>
                                                         Refund Slot
                                                     </button>
-                                                </form>
-                                            </li>
+                                                </li>
+                                            @endif
+
                                             <!-- Assign Expert -->
                                             <li>
                                                 <a class="dropdown-item"
                                                     href="{{ route('admin.bookings.assignExpertPage', $slot->id) }}">
+
                                                     <i class="ri-user-add-line me-2"></i>
                                                     Assign Expert
                                                 </a>
                                             </li>
+
+                                            <!-- Slot Logs -->
                                             <li>
                                                 <a class="dropdown-item"
                                                     href="{{ route('admin.bookings.slot_logs', $slot->id) }}">
+
                                                     <i class="ri-file-list-3-line me-2"></i>
                                                     Slot Logs
                                                 </a>
                                             </li>
 
+                                            <!-- Notifications -->
                                             <li>
                                                 <a class="dropdown-item"
                                                     href="{{ route('admin.bookings.slot_notifications', $slot->id) }}">
+
                                                     <i class="ri-notification-3-line me-2"></i>
                                                     Slot Notifications
                                                 </a>
                                             </li>
+
                                         </ul>
                                     </div>
+
+                                    <!-- Refund Modal -->
+                                    <div class="modal fade" id="refundModal{{ $slot->id }}" tabindex="-1"
+                                        aria-hidden="true">
+
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">
+                                                        Confirm Refund
+                                                    </h5>
+
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal">
+                                                    </button>
+                                                </div>
+
+                                                <div class="modal-body">
+                                                    Are you sure you want to refund this slot?
+                                                </div>
+
+                                                <div class="modal-footer">
+
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">
+                                                        Cancel
+                                                    </button>
+
+                                                    <form action="{{ route('admin.refund.process', $slot->id) }}"
+                                                        method="POST">
+
+                                                        @csrf
+
+                                                        <button type="submit" class="btn btn-danger">
+
+                                                            Yes, Refund
+                                                        </button>
+                                                    </form>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </td>
                             </tr>
+
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center">No booking slot found</td>
+                                <td colspan="11" class="text-center">
+                                    No booking slot found
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -201,4 +302,4 @@
             </div>
             <!-- end booking slot -->
         </div>
-@endsection
+    @endsection
