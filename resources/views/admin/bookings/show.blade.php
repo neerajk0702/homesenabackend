@@ -138,6 +138,7 @@
                             <th>Amount</th>
                             <th>Check In Time</th>
                             <th>Status</th>
+                            <th>Payment Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -183,6 +184,10 @@
                                         {{ ucfirst(str_replace('_', ' ', $slot->status)) }}
                                     </span>
                                 </td>
+                                  <td>
+                                    {{ ucfirst(str_replace('_', ' ', $slot->payment_status)) }}
+                                </td>
+
 
                                 <td>
                                     <div class="dropdown">
@@ -194,7 +199,7 @@
                                         <ul class="dropdown-menu dropdown-menu-end">
 
                                             <!-- Refund -->
-                                            @if ($booking->payment_status == 'paid')
+                                            @if ($booking->payment_status == 'paid' && $slot->status == 'cancelled')
                                                 <li>
                                                     <button type="button" class="dropdown-item" data-bs-toggle="modal"git 
                                                         data-bs-target="#refundModal{{ $slot->id }}">
