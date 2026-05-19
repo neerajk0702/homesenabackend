@@ -137,45 +137,49 @@ class BookingController extends Controller
         try {
             $slotBooking = BookingSlot::with('booking')
                 ->findOrFail($id);
+            // CHECK SLOT CANCELLED
             if ($slotBooking->status != 'cancelled') {
                 return back()->with('error', 'Please cancel slot first');
             }
-
+            // CHECK ALREADY REFUNDED
             $alreadyRefunded = Refund::where('booking_slot_id', $slotBooking->id)
                 ->where('status', 'processed')
                 ->exists();
-
             if ($alreadyRefunded) {
                 return back()->with('error', 'Slot already refunded');
             }
-
             $refundAmount = $slotBooking->price;
             $paymentId = $slotBooking->booking->payment_id;
+            // CREATE REFUND ENTRY
             $refundEntry = Refund::create([
                 'booking_id' => $slotBooking->booking_id,
                 'booking_slot_id' => $slotBooking->id,
                 'payment_id' => $paymentId,
                 'amount' => $refundAmount,
                 'status' => 'pending',
-                'refunded_by' => auth()->id()
+                'refunded_by' => auth()->id(),
             ]);
-            $refundResponse = $this->refundPayment($paymentId, $refundAmount);
 
+            // PROCESS REFUND
+            $refundResponse = $this->refundPayment($paymentId, $refundAmount);
+            // REFUND FAILED
             if (!$refundResponse['status']) {
                 $refundEntry->update([
                     'status' => 'failed',
-
-                    'refund_response' => $refundResponse['message']
+                    'refund_response' => json_encode($refundResponse['data'] ?? [])
                 ]);
-                return back()->with( 'error',$refundResponse['message']);
+                return back()->with('error', $refundResponse['message']
+                );
             }
-            //  UPDATE REFUND SUCCESS
+            // REFUND SUCCESS
             $refundEntry->update([
-                'refund_id' => $refundResponse['refund_id'] ?? null,
+                'refund_id' => $refundResponse['refund_id'],
                 'status' => 'processed',
-                'refunded_at' => now()
+                'refund_response' => json_encode($refundResponse['data']),
+                'refunded_at' => now(),
             ]);
-            //   CHECK ALL SLOTS REFUNDED 
+
+            // CHECK ALL SLOTS REFUNDED
             $booking = $slotBooking->booking;
             $remainingSlots = $booking->bookingSlots()
                 ->whereNotIn('id', function ($query) {
@@ -184,22 +188,24 @@ class BookingController extends Controller
                         ->where('status', 'processed');
                 })
                 ->count();
-            //   ALL REFUNDED 
+            // ALL REFUNDED
             if ($remainingSlots == 0) {
                 $booking->update([
                     'payment_status' => 'refunded'
                 ]);
             }
-            return back()->with('success', 'Refund initiated successfully. Amount will reflect within 5-7 working days.');
+            return back()->with(
+                'success',
+                'Refund processed successfully. Amount will reflect within 5-7 working days.'
+            );
 
         } catch (\Exception $e) {
             \Log::error('Refund Exception: ' . $e->getMessage());
-            return back()->with(
-                'error',
-                'Refund Failed: ' . $e->getMessage()
+            return back()->with( 'error','Refund Failed: ' . $e->getMessage()
             );
         }
     }
+
 
     private function refundPayment($paymentId, $refundAmount)
     {
@@ -219,23 +225,32 @@ class BookingController extends Controller
                 )
             ],
         ]);
-
         $response = curl_exec($curl);
         $error = curl_error($curl);
         curl_close($curl);
-
+        // CURL ERROR
         if ($error) {
-            \Log::error('Refund Failed: ' . $error);
+            \Log::error('Refund CURL Error: ' . $error);
             return [
                 'status' => false,
                 'message' => $error
             ];
         }
-        $api_response = json_decode($response, true);
-        \Log::info('Refund processed successfully', $api_response);
+        $apiResponse = json_decode($response, true);
+        \Log::info('Refund API Response----------------', $apiResponse);
+        // API FAILED
+        if (isset($apiResponse['error'])) {
+            return [
+                'status' => false,
+                'message' => $apiResponse['error']['description'] ?? 'Refund failed',
+                'data' => $apiResponse
+            ];
+        }
+        // SUCCESS
         return [
             'status' => true,
-            'data' => $api_response
+            'refund_id' => $apiResponse['id'] ?? null,
+            'data' => $apiResponse
         ];
     }
 
