@@ -181,7 +181,7 @@ class BookingController extends Controller
 
             // CHECK ALL SLOTS REFUNDED
             $booking = $slotBooking->booking;
-            $remainingSlots = $booking->bookingSlots()
+            $remainingSlots = $booking->slots()
                 ->whereNotIn('id', function ($query) {
                     $query->select('booking_slot_id')
                         ->from('refunds')
