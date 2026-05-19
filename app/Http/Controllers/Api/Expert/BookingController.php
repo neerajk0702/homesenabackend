@@ -551,10 +551,20 @@ class BookingController extends Controller
                 }
                 $bookingSlot->status = 'completed';
                 $bookingSlot->save();
+                $booking = $bookingSlot->booking;
+                // check pending slots
+                $pendingSlots = $booking->bookingSlots()
+                    ->where('status', '!=', 'completed')
+                    ->count();
+                // if all slots completed
+                if ($pendingSlots == 0) {
+                    $booking->status = 'completed';
+                    $booking->save();
+                }
                 //  Correct relation
                 $user = $bookingSlot->booking->user;
                 if (!$user) {
-                    return;
+                      throw new \Exception('User not found');
                 }
                 //  Referral logic (first time only)
                 if ($user->referred_by && $user->referral_reward_given == 0) {

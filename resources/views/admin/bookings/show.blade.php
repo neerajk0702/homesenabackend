@@ -148,7 +148,17 @@
                                             <i class="ri-more-2-line"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
+                                            <!-- refund -->
+                                            <li>
+                                                <form action="{{ route('admin.refund.process', $slot->id) }}" method="POST">
+                                                    @csrf
 
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="ri-user-add-line me-2"></i>
+                                                        Refund Slot
+                                                    </button>
+                                                </form>
+                                            </li>
                                             <!-- Assign Expert -->
                                             <li>
                                                 <a class="dropdown-item"
@@ -158,7 +168,8 @@
                                                 </a>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item" href="{{ route('admin.bookings.slot_logs', $slot->id) }}">
+                                                <a class="dropdown-item"
+                                                    href="{{ route('admin.bookings.slot_logs', $slot->id) }}">
                                                     <i class="ri-file-list-3-line me-2"></i>
                                                     Slot Logs
                                                 </a>
@@ -190,4 +201,4 @@
             </div>
             <!-- end booking slot -->
         </div>
-    @endsection
+@endsection

@@ -569,8 +569,8 @@ class BookingController extends Controller
             switch ($status) {
                 case 'pending':
                     // $query->where('status', 'accepted')
-                    $query->whereIn('status', ['pending', 'confirmed', 'notified'])
-                        ->where('start_time', '>=', now());
+                    $query->whereIn('status', ['pending', 'confirmed', 'notified']);
+                        // ->where('start_time', '>=', now());
                     break;
                 case 'upcoming':
                     $query->where('status', 'accepted');

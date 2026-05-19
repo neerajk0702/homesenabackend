@@ -9,6 +9,7 @@ use App\Models\BookingSlot;
 use App\Models\User;
 use App\Models\BookingSlotLog;
 use App\Models\BookingSlotNotification;
+use App\Models\Refund;
 
 class BookingController extends Controller
 {
@@ -134,35 +135,69 @@ class BookingController extends Controller
     public function refundBookingSlot($id)
     {
         try {
-            $slotBooking = BookingSlot::with('booking')->findOrFail($id);
+            $slotBooking = BookingSlot::with('booking')
+                ->findOrFail($id);
+            if ($slotBooking->status != 'cancelled') {
+                return back()->with('error', 'Please cancel slot first');
+            }
+
+            $alreadyRefunded = Refund::where('booking_slot_id', $slotBooking->id)
+                ->where('status', 'processed')
+                ->exists();
+
+            if ($alreadyRefunded) {
+                return back()->with('error', 'Slot already refunded');
+            }
+
             $refundAmount = $slotBooking->price;
             $paymentId = $slotBooking->booking->payment_id;
-            $refund = $this->refundPayment(
-                $paymentId,
-                $refundAmount
-            );
-            if (!$refund['status']) {
-                return back()->with('error', $refund['message']);
+            $refundEntry = Refund::create([
+                'booking_id' => $slotBooking->booking_id,
+                'booking_slot_id' => $slotBooking->id,
+                'payment_id' => $paymentId,
+                'amount' => $refundAmount,
+                'status' => 'pending',
+                'refunded_by' => auth()->id()
+            ]);
+            $refundResponse = $this->refundPayment($paymentId, $refundAmount);
+
+            if (!$refundResponse['status']) {
+                $refundEntry->update([
+                    'status' => 'failed',
+
+                    'refund_response' => $refundResponse['message']
+                ]);
+                return back()->with( 'error',$refundResponse['message']);
             }
-            // cancel current slot
-            $slotBooking->status = 'cancelled';
-            $slotBooking->save();
+            //  UPDATE REFUND SUCCESS
+            $refundEntry->update([
+                'refund_id' => $refundResponse['refund_id'] ?? null,
+                'status' => 'processed',
+                'refunded_at' => now()
+            ]);
+            //   CHECK ALL SLOTS REFUNDED 
             $booking = $slotBooking->booking;
-
-            // check active slots
             $remainingSlots = $booking->bookingSlots()
-                ->where('status', '!=', 'cancelled')
+                ->whereNotIn('id', function ($query) {
+                    $query->select('booking_slot_id')
+                        ->from('refunds')
+                        ->where('status', 'processed');
+                })
                 ->count();
-
-            // if all slots cancelled then cancel booking also
+            //   ALL REFUNDED 
             if ($remainingSlots == 0) {
-                $booking->status = 'cancelled';
-                $booking->save();
+                $booking->update([
+                    'payment_status' => 'refunded'
+                ]);
             }
-            return back()->with('success', 'Booking refunded successfully');
+            return back()->with('success', 'Refund initiated successfully. Amount will reflect within 5-7 working days.');
+
         } catch (\Exception $e) {
             \Log::error('Refund Exception: ' . $e->getMessage());
-            return back()->with('error', 'Refund Failed: ' . $e->getMessage());
+            return back()->with(
+                'error',
+                'Refund Failed: ' . $e->getMessage()
+            );
         }
     }
 

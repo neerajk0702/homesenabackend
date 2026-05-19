@@ -102,10 +102,13 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::post('bookings/{id}/assign-expert', [BookingController::class, 'assignExpertSubmit'])
         ->name('bookings.assignExpertSubmit');
     Route::get('bookings/{id}/slot-logs', [BookingController::class, 'slotLogs'])
-    ->name('bookings.slot_logs');
+        ->name('bookings.slot_logs');
     Route::get('bookings/{id}/slot-notifications', [BookingController::class, 'slotNotifications'])
-    ->name('bookings.slot_notifications');
-     Route::get('/download-invoice/{id}', [InvoiceController::class, 'bookingInvoice'])
+        ->name('bookings.slot_notifications');
+    Route::get('/download-invoice/{id}', [InvoiceController::class, 'bookingInvoice'])
         ->name('download.invoice');
+    Route::post('/refund/slot/{id}', [BookingController::class, 'refundBookingSlot'])->name('refund.process');
+    
+
 });
 Route::get('page/{slug}', [FrontendController::class, 'page'])->name('page');
