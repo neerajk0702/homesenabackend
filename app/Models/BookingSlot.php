@@ -23,6 +23,7 @@ class BookingSlot extends Model
         'cancel_reason',
         'cancelled_at',
         'is_rescheduled',
+        'is_refunded',
         'notified'
     ];
 

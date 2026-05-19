@@ -138,8 +138,8 @@ class BookingController extends Controller
             $slotBooking = BookingSlot::with('booking')
                 ->findOrFail($id);
             // CHECK SLOT CANCELLED
-            if ($slotBooking->status != 'cancelled') {
-                return back()->with('error', 'Please cancel slot first');
+            if ($slotBooking->status != 'cancelled' && $slotBooking->booking->payment_status != 'paid') {
+                return back()->with('error', 'Please cancel slot first to process refund or check if booking is paid');
             }
             // CHECK ALREADY REFUNDED
             $alreadyRefunded = Refund::where('booking_slot_id', $slotBooking->id)
@@ -171,6 +171,10 @@ class BookingController extends Controller
                 return back()->with('error', $refundResponse['message']
                 );
             }
+             $slotBooking->update([
+                'payment_status' => 'refunded',
+                'is_refunded' => true,
+            ]);
             // REFUND SUCCESS
             $refundEntry->update([
                 'refund_id' => $refundResponse['refund_id'],
