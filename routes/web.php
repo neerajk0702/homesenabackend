@@ -108,7 +108,8 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('/download-invoice/{id}', [InvoiceController::class, 'bookingInvoice'])
         ->name('download.invoice');
     Route::post('/refund/slot/{id}', [BookingController::class, 'refundBookingSlot'])->name('refund.process');
-    
-
+    Route::get('/bookings/refund-details/{id}',
+    [BookingController::class, 'refundDetails'])
+    ->name('bookings.refund_details');
 });
 Route::get('page/{slug}', [FrontendController::class, 'page'])->name('page');

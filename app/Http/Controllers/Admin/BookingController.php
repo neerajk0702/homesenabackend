@@ -168,10 +168,12 @@ class BookingController extends Controller
                     'status' => 'failed',
                     'refund_response' => json_encode($refundResponse['data'] ?? [])
                 ]);
-                return back()->with('error', $refundResponse['message']
+                return back()->with(
+                    'error',
+                    $refundResponse['message']
                 );
             }
-             $slotBooking->update([
+            $slotBooking->update([
                 'payment_status' => 'refunded',
                 'is_refunded' => true,
             ]);
@@ -202,10 +204,11 @@ class BookingController extends Controller
                 'success',
                 'Refund processed successfully. Amount will reflect within 5-7 working days.'
             );
-
         } catch (\Exception $e) {
             \Log::error('Refund Exception: ' . $e->getMessage());
-            return back()->with( 'error','Refund Failed: ' . $e->getMessage()
+            return back()->with(
+                'error',
+                'Refund Failed: ' . $e->getMessage()
             );
         }
     }
@@ -257,5 +260,21 @@ class BookingController extends Controller
             'data' => $apiResponse
         ];
     }
+    public function refundDetails($id)
+    {
+        $slot = BookingSlot::with([
+            'booking',
+            'expert'
+        ])
+            ->findOrFail($id);
 
+        $refund = Refund::where('booking_slot_id', $id)
+            ->latest()
+            ->first();
+
+        return view(
+            'admin.bookings.refund_details',
+            compact('slot', 'refund')
+        );
+    }
 }
