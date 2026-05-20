@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\UserResource;
+use Illuminate\Validation\Rule;
 class UserController extends Controller
 {
 
@@ -35,7 +36,17 @@ class UserController extends Controller
         $user = $request->user();
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
+            'email' => [
+                        'nullable',
+                        'email',
+                        'max:255',
+                        Rule::unique('users', 'email')
+                            ->ignore($user->id)
+                            ->where(function ($query) {
+                                return $query->where('role', 'user');
+                            }),
+                    ],
+            // 'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
         if ($validator->fails()) {

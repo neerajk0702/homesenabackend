@@ -29,7 +29,8 @@ class User extends Authenticatable
         'profile_completed',
         'referral_code',
         'referred_by',
-        'referral_reward_given'
+        'referral_reward_given',
+        'delete_reason'
     ];
 
     /**

@@ -91,9 +91,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // service Available
     Route::post('service-available',[ServiceController::class, 'serviceAvailable']);
     // generate invoice
-    Route::get('/booking/{id}/invoice', [InvoiceController::class, 'generateBookingInvoice']);
+    Route::get('booking/{id}/invoice', [InvoiceController::class, 'generateBookingInvoice']);
     // Route::get('/slot-booking/{id}/invoice', [InvoiceController::class, 'generateSlotInvoice']);
      Route::post('notify-me',[ServiceNotifyController::class, 'storeNotifyRequest']);
+     Route::get('refund-status/{bookingSlotId}',[BookingController::class, 'refundStatus']);
 
     /*-------------  expert api ---------------------------------------**/
      Route::middleware('role:expert')->prefix('expert')->group(function(){

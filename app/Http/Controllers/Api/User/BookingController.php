@@ -19,6 +19,7 @@ use App\Models\BookingSlot;
 use App\Models\BookingCancelReason;
 use App\Http\Resources\BookingSlotResource;
 use App\Http\Resources\UserBookingSlotResource;
+use App\Models\Refund;
 
 class BookingController extends Controller
 {
@@ -570,11 +571,11 @@ class BookingController extends Controller
                 case 'pending':
                     // $query->where('status', 'accepted')
                     $query->whereIn('status', ['pending', 'confirmed', 'notified']);
-                        // ->where('start_time', '>=', now());
+                    // ->where('start_time', '>=', now());
                     break;
                 case 'upcoming':
                     $query->where('status', 'accepted');
-                        // ->where('start_time', '>=', now());
+                    // ->where('start_time', '>=', now());
                     break;
                 case 'completed':
                     $query->where('status', 'completed');
@@ -587,9 +588,11 @@ class BookingController extends Controller
                     break;
             }
         }
-        $slots = $query->orderBy('date')
-            ->orderBy('start_time')
-            ->get();
+        // $slots = $query->orderBy('date')
+        //     ->orderBy('start_time')
+        //     ->get();
+        $slots = $query->latest('created_at')
+               ->get();
 
         if ($slots->isEmpty()) {
             return response()->json([
@@ -1140,6 +1143,45 @@ class BookingController extends Controller
                 'status' => false,
                 'code' => 422,
                 'message' => 'something went wrong',
+                'data' => (object) []
+            ]);
+        }
+    }
+
+    public function refundStatus($bookingSlotId)
+    {
+        try {
+
+            $refund = Refund::where('booking_slot_id', $bookingSlotId)
+                ->where('status', 'processed')
+                ->latest()
+                ->first();
+
+            if (!$refund) {
+                return response()->json([
+                    'code' => 200,
+                    'status' => true,
+                    'message' => 'No refund found',
+                    'data' => (object) []
+                ]);
+            }
+            return response()->json([
+                'code' => 200,
+                'status' => true,
+                'message' => 'Refund details fetched successfully',
+                'data' => [
+                    'slot_id' => $refund->booking_slot_id,
+                    'refund_status' => $refund->status,
+                    'refund_id' => $refund->refund_id,
+                    'refund_amount' => $refund->amount,
+                    'refunded_at' => $refund->refunded_at,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => $e->getMessage(),
                 'data' => (object) []
             ]);
         }

@@ -36,8 +36,9 @@ Route::get('/', function () {
 });
 
 Route::get('/delete-account', function () {
-    return view('frontend.pages.delete-account');
+return view('frontend.pages.delete-account');
 })->name('delete.account');
+Route::post('/delete-account', [FrontendUserController::class, 'deleteAccountWeb'])->name('web.delete.account');
 Route::get('/support', function () {
     return view('frontend.pages.support');
 })->name('support');

@@ -11,6 +11,7 @@ use App\Models\ExpertOnlineLog;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ExpertProfileResource;
 use App\Models\BookingSlot;
+use Illuminate\Validation\Rule;
 class ExpertController extends Controller
 {
     // public function storeDetails(Request $request)
@@ -109,7 +110,12 @@ class ExpertController extends Controller
         $expert = $request->user();
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255|unique:users,email,' . $expert->id,
+            'email' => ['nullable','email','max:255',Rule::unique('users', 'email')->ignore($expert->id)
+                           ->where(function ($query) {
+                           return $query->where('role', 'expert');
+                             }),
+                    ],
+            // 'email' => 'nullable|email|max:255|unique:users,email,' . $expert->id,
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'training_center_id' => 'required|exists:training_centers,id|integer',
         ]);

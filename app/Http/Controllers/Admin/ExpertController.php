@@ -12,6 +12,7 @@ use App\Models\UserDevice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class ExpertController extends Controller
 {
@@ -354,8 +355,24 @@ class ExpertController extends Controller
     {
         return $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|digits:10|unique:users,phone,' . $id,
-            'email' => 'nullable|email|unique:users,email,' . $id,
+            'phone' => [
+                    'required',
+                    'digits:10',
+                    Rule::unique('users')->where(function ($query) use ($request) {
+                        return $query->where('role', 'expert'); 
+                    })->ignore($id),
+                ],
+            // 'phone' => 'required|digits:10|unique:users,phone,' . $id,
+            // 'email' => 'nullable|email|unique:users,email,' . $id,
+              'email' => [
+                        'nullable',
+                        'email',
+                        Rule::unique('users', 'email')
+                            ->ignore($id)
+                            ->where(function ($query) {
+                                return $query->where('role', 'expert');
+                            }),
+                    ],
             'password' => 'nullable|min:8',
             'device_type' => $id ? 'nullable' : 'required|in:android,ios',
             'service_location_id' => 'required|exists:service_locations,id',

@@ -232,16 +232,25 @@
 
                 <!-- FORM SIDE -->
                 <div class="deletion-form-col">
+                    @if(session('success'))
+                            <div class="alert-success">
+                                {{ session('success') }}
+                            </div>
+                        @endif
 
+                        @if($errors->any())
+                            <div class="alert-danger">
+                                {{ $errors->first() }}
+                            </div>
+                        @endif
                     <h3>Request Account Deletion</h3>
+                    <form action="{{ route('web.delete.account') }}" method="POST">
+                         @csrf
+                        <input type="text" name="name" class="border-input" placeholder="Full Name *" value="{{ old('name') }}" required>
+                        <input type="phone" name="phone" class="border-input" placeholder="Your phone *" value="{{ old('phone') }}" required>
+                        <!-- <input type="email" class="border-input" placeholder="Your Email *" required> -->
 
-                    <form action="#" method="POST">
-
-                        <input type="text" class="border-input" placeholder="Full Name *" required>
-
-                        <input type="email" class="border-input" placeholder="Your Email *" required>
-
-                        <textarea class="border-input" rows="3"
+                        <textarea class="border-input" rows="3" name="reason"
                             placeholder="Reason for deleting account (Optional)"></textarea>
 
                         <div class="g-recaptcha mb-3"
