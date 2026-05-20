@@ -184,7 +184,7 @@
                                         {{ ucfirst(str_replace('_', ' ', $slot->status)) }}
                                     </span>
                                 </td>
-                                  <td>
+                                <td>
                                     {{ ucfirst(str_replace('_', ' ', $slot->payment_status)) }}
                                 </td>
 
@@ -201,7 +201,7 @@
                                             <!-- Refund -->
                                             @if ($booking->payment_status == 'paid' && $slot->status == 'cancelled')
                                                 <li>
-                                                    <button type="button" class="dropdown-item" data-bs-toggle="modal"git 
+                                                    <button type="button" class="dropdown-item" data-bs-toggle="modal"git
                                                         data-bs-target="#refundModal{{ $slot->id }}">
 
                                                         <i class="ri-bank-card-line me-2"></i>
@@ -209,7 +209,17 @@
                                                     </button>
                                                 </li>
                                             @endif
+                                            {{-- payment details --}}
+                                            @if ($booking->payment_status == 'refunded')
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('admin.bookings.refund_details', $slot->id) }}">
 
+                                                        <i class="ri-coin-line me-2"></i>
+                                                        Refund Details
+                                                    </a>
+                                                </li>
+                                            @endif
                                             <!-- Assign Expert -->
                                             <li>
                                                 <a class="dropdown-item"
