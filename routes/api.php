@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\Expert\ExpertSOSController;
 use App\Http\Controllers\Api\Expert\ExpertCmsPageController;
 use App\Http\Controllers\Api\Expert\ExpertController;
 use App\Http\Controllers\Api\User\ServiceNotifyController;
+use App\Http\Controllers\Api\User\CouponController;
 
 
 
@@ -95,7 +96,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::get('/slot-booking/{id}/invoice', [InvoiceController::class, 'generateSlotInvoice']);
      Route::post('notify-me',[ServiceNotifyController::class, 'storeNotifyRequest']);
      Route::get('refund-status/{bookingSlotId}',[BookingController::class, 'refundStatus']);
-
+    //  coupon
+     Route::post('apply-coupon',[CouponController::class, 'applyCoupon']);
+     Route::get('coupon-list',[CouponController::class, 'couponList']);
     /*-------------  expert api ---------------------------------------**/
      Route::middleware('role:expert')->prefix('expert')->group(function(){
         
@@ -120,11 +123,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('slots/{id}/verify-otp', [ExpertBookingController::class, 'verifyOtp']);
         Route::get('booking-reject-reason', [ExpertBookingController::class, 'bookingRejectReason']);
         Route::put('slot/{id}/complete', [ExpertBookingController::class, 'completeBookingSlot']);
+     
         
     });
-   
-    
 
-   
 });
    

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Expert;
 
 use App\Http\Controllers\Controller;
 use App\Models\ExpertSOS;
@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
-class SOSController extends Controller
+class ExpertSOSController extends Controller
 {
     public function sendSOS(Request $request)
     {
