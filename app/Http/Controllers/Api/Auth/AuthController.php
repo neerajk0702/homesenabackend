@@ -260,6 +260,18 @@ class AuthController extends Controller
     public function deleteAccount(Request $request)
     {
         $user = $request->user();
+             // store old values
+        $oldPhone = $user->phone;
+        $oldEmail = $user->email;
+        // update before delete
+        $user->update([
+            'phone' => $oldPhone
+                ? 'deleted_' . time() . '_' . $oldPhone
+                : null,
+            'email' => $oldEmail
+                ? 'deleted_' . time() . '_' . $oldEmail
+                : null,
+         ]);
         // Delete tokens (logout from all devices)
         $user->tokens()->delete();
         // Soft delete user
