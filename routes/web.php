@@ -54,6 +54,7 @@ Route::get('admin/login', function () {
     return view('admin.login');
 })->name('admin.login');
 Route::post('admin/login', [AuthController::class, 'adminLogin']);
+Route::get('/get-users', [PushNotificationController::class, 'getUsers']);
 /* forgot password  */
 Route::get('/admin/forgot-password', [AuthController::class, 'showForgot'])->name('admin.forgot');
 Route::post('/admin/otp', [AuthController::class, 'sendOtp'])->name('admin.sendOtp');

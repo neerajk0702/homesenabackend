@@ -83,6 +83,10 @@
                                     {{ old('send_type', $push_notification->send_type ?? '') == 'location' ? 'selected' : '' }}>
                                     Location Wise
                                 </option>
+                                <option value="single_user"
+                                    {{ old('send_type', $push_notification->send_type ?? '') == 'single_user' ? 'selected' : '' }}>
+                                    Single User
+                                </option>
 
                             </select>
 
@@ -93,7 +97,78 @@
                             @enderror
                         </div>
                     </div>
+                    <!-- Single User -->
+                    {{-- <div class="col-lg-4 col-md-6 col-12" id="user_div"
+                        style="{{ old('send_type', $push_notification->send_type ?? '') == 'single_user' ? '' : 'display:none;' }}">
 
+                        <label class="form-label">
+                            Select User <span class="text-danger">*</span>
+                        </label>
+
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ri-user-line"></i>
+                            </span>
+
+                            <select name="user_id" id="user_id"
+                                class="form-select @error('user_id') is-invalid @enderror">
+
+                                <option value="">Select User</option>
+
+                            </select>
+
+                        </div>
+
+                        @error('user_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div> --}}
+                    <div class="col-lg-4 col-md-6 col-12" id="user_div"
+                        style="{{ old('send_type', $push_notification->send_type ?? '') == 'single_user' ? '' : 'display:none;' }}">
+
+                        <label class="form-label fw-semibold mb-2">
+                            Select User <span class="text-danger">*</span>
+                        </label>
+
+                        <div class="custom-dropdown position-relative">
+
+                            <!-- Selected Button -->
+                            <button type="button"
+                                class="form-control text-start d-flex justify-content-between align-items-center"
+                                id="selectedUserBtn">
+
+                                <span id="selectedUserText">Select User</span>
+
+                                <i class="ri-arrow-down-s-line"></i>
+                            </button>
+
+                            <!-- Dropdown Box -->
+                            <div class="dropdown-box shadow-sm d-none position-absolute w-100 bg-white" id="dropdownBox"
+                                style="z-index:999; max-height:300px; overflow:auto;">
+
+                                <!-- Search -->
+                                <div class="p-2 border-bottom bg-white sticky-top">
+                                    <input type="text" class="form-control" id="searchUser" placeholder="Search User...">
+                                </div>
+
+                                <!-- User List -->
+                                <div class="user-list" id="userList">
+
+                                    <!-- AJAX USERS LOAD HERE -->
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Hidden Input -->
+                        <input type="hidden" name="user_id" id="user_id"
+                            value="{{ old('user_id', $push_notification->user_id ?? '') }}">
+
+                        @error('user_id')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
                     <!-- Service Location -->
                     <div class="col-lg-4 col-md-6 col-12" id="location_div"
                         style="{{ old('send_type', $push_notification->send_type ?? '') == 'location' ? '' : 'display:none;' }}">
@@ -297,61 +372,161 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            // =========================
-            // SEND TYPE / LOCATION
-            // =========================
             const sendType = document.getElementById('send_type');
             const locationDiv = document.getElementById('location_div');
 
-            function toggleLocationField() {
+            const userDiv = document.getElementById('user_div');
+            const userHiddenInput = document.getElementById('user_id');
 
-                if (sendType.value === 'location') {
-
-                    locationDiv.style.display = 'block';
-
-                } else {
-
-                    locationDiv.style.display = 'none';
-
-                    // Reset location field
-                    const locationField = locationDiv.querySelector('select');
-
-                    if (locationField) {
-                        locationField.value = '';
-                    }
-                }
-            }
-
-            // =========================
-            // SCHEDULE TYPE
-            // =========================
             const scheduleType = document.getElementById('schedule_type');
             const scheduledWrapper = document.getElementById('scheduled_at_wrapper');
             const scheduledAt = document.getElementById('scheduled_at');
 
-            function toggleScheduleField() {
+            const dropdownBox = document.getElementById('dropdownBox');
+            const selectedBtn = document.getElementById('selectedUserBtn');
+            const searchInput = document.getElementById('searchUser');
+            const userList = document.getElementById('userList');
+            const selectedText = document.getElementById('selectedUserText');
 
-                if (scheduleType.value === 'scheduled') {
+            let allUsers = [];
 
-                    scheduledWrapper.style.display = 'block';
+            // =========================
+            // LOAD USERS
+            // =========================
+            function loadUsers() {
 
+                fetch("{{ url('/get-users') }}")
+                    .then(res => res.json())
+                    .then(data => {
+
+                        allUsers = data;
+                        renderUsers(allUsers);
+
+                    })
+                    .catch(err => console.log(err));
+            }
+
+            // =========================
+            // RENDER USERS (FIXED EVENT DELEGATION)
+            // =========================
+            function renderUsers(users) {
+
+                userList.innerHTML = '';
+
+                users.forEach(user => {
+
+                    const div = document.createElement('div');
+
+                    div.className = "user-item px-3 py-2 border-bottom";
+                    div.style.cursor = "pointer";
+
+                    div.dataset.id = user.id;
+                    div.dataset.name = user.name + (user.phone ? ` (${user.phone})` : '');
+
+                    div.innerHTML = div.dataset.name;
+
+                    userList.appendChild(div);
+                });
+            }
+
+            // =========================
+            // CLICK (EVENT DELEGATION - FIXED)
+            // =========================
+            userList.addEventListener('click', function(e) {
+
+                const item = e.target.closest('.user-item');
+
+                if (!item) return;
+
+                userHiddenInput.value = item.dataset.id;
+                selectedText.innerText = item.dataset.name;
+
+                dropdownBox.classList.add('d-none');
+            });
+
+            // =========================
+            // SEARCH (AUTO SUGGEST)
+            // =========================
+            searchInput.addEventListener('input', function() {
+
+                let value = this.value.trim().toLowerCase();
+
+                if (value === '') {
+                    renderUsers(allUsers);
+                    return;
+                }
+
+                let filtered = allUsers.filter(user =>
+                    user.name.toLowerCase().includes(value) ||
+                    (user.phone && user.phone.includes(value))
+                );
+
+                // priority startsWith
+                filtered.sort((a, b) => {
+
+                    let aStart = a.name.toLowerCase().startsWith(value) ? 1 : 0;
+                    let bStart = b.name.toLowerCase().startsWith(value) ? 1 : 0;
+
+                    return bStart - aStart;
+
+                });
+
+                renderUsers(filtered);
+            });
+
+            // =========================
+            // DROPDOWN TOGGLE
+            // =========================
+            selectedBtn.addEventListener('click', function() {
+                dropdownBox.classList.toggle('d-none');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!selectedBtn.contains(e.target) && !dropdownBox.contains(e.target)) {
+                    dropdownBox.classList.add('d-none');
+                }
+            });
+
+            // =========================
+            // SEND TYPE
+            // =========================
+            function toggleSendTypeFields() {
+
+                if (sendType.value === 'location') {
+                    locationDiv.style.display = 'block';
                 } else {
+                    locationDiv.style.display = 'none';
+                }
 
-                    scheduledWrapper.style.display = 'none';
-
-                    // Reset datetime
-                    if (scheduledAt) {
-                        scheduledAt.value = '';
-                    }
+                if (sendType.value === 'single_user') {
+                    userDiv.style.display = 'block';
+                    loadUsers();
+                } else {
+                    userDiv.style.display = 'none';
+                    userHiddenInput.value = '';
+                    selectedText.innerText = 'Select User';
                 }
             }
 
-            // Initial Load
-            toggleLocationField();
+            // =========================
+            // SCHEDULE
+            // =========================
+            function toggleScheduleField() {
+
+                if (scheduleType.value === 'scheduled') {
+                    scheduledWrapper.style.display = 'block';
+                } else {
+                    scheduledWrapper.style.display = 'none';
+                }
+            }
+
+            // =========================
+            // INIT
+            // =========================
+            toggleSendTypeFields();
             toggleScheduleField();
 
-            // On Change
-            sendType.addEventListener('change', toggleLocationField);
+            sendType.addEventListener('change', toggleSendTypeFields);
             scheduleType.addEventListener('change', toggleScheduleField);
 
         });
