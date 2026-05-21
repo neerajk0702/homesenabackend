@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\BookingRejectReasonController;
 use App\Http\Controllers\Admin\ServiceNotifyController;
 use App\Http\Controllers\Admin\PushNotificationController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\Frontend\UserController as FrontendUserController;
 
@@ -113,5 +114,7 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('/bookings/refund-details/{id}',
     [BookingController::class, 'refundDetails'])
     ->name('bookings.refund_details');
+    Route::resource('coupons', CouponController::class);
+
 });
 Route::get('page/{slug}', [FrontendController::class, 'page'])->name('page');

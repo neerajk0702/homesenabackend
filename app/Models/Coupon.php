@@ -10,6 +10,7 @@ class Coupon extends Model
         'code',
         'discount_type',
         'discount_value',
+        'description',
         'coupon_for',
         'per_user_limit',
         'start_date',
