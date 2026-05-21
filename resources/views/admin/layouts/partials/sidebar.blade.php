@@ -62,18 +62,60 @@
             </a>
         </li>
         {{-- Notification --}}
-        <li class="menu-item {{ request()->routeIs('admin.push_notifications.*') ? 'active' : '' }}">
+        {{-- <li class="menu-item {{ request()->routeIs('admin.push_notifications.*') ? 'active' : '' }}">
             <a href="{{ route('admin.push_notifications.index') }}" class="menu-link">
                 <i class="menu-icon ri-notification-3-line"></i>
                 <div>Push Notifications</div>
             </a>
-        </li>
+        </li> --}}
         {{-- Payments --}}
-        <li class="menu-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+        {{-- <li class="menu-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
             <a href="{{ route('admin.payments.index') }}" class="menu-link">
                 <i class="menu-icon ri ri-wallet-3-line"></i>
                 <div>Payments</div>
             </a>
+        </li> --}}
+        <li
+            class="menu-item 
+    {{ request()->routeIs('admin.push_notifications.*') ||
+    request()->routeIs('admin.home_promotion.*') ||
+    request()->routeIs('admin.coupons.*')
+        ? 'active open'
+        : '' }}">
+
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon ri ri-megaphone-line"></i>
+
+                <div>Marketing Management</div>
+            </a>
+
+            <ul class="menu-sub">
+
+                <!-- Push Notifications -->
+                <li class="menu-item {{ request()->routeIs('admin.push_notifications.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.push_notifications.index') }}" class="menu-link">
+
+                        <div>Push Notifications</div>
+                    </a>
+                </li>
+
+                <!-- Home Promotions -->
+                <li class="menu-item {{ request()->routeIs('admin.home_promotion.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.home_promotion.index') }}" class="menu-link">
+
+                        <div>Home Promotions</div>
+                    </a>
+                </li>
+
+                <!-- Coupons -->
+                <li class="menu-item {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.coupons.index') }}" class="menu-link">
+
+                        <div>Coupons</div>
+                    </a>
+                </li>
+
+            </ul>
         </li>
         {{-- Service Management --}}
         <li
@@ -247,12 +289,12 @@
 
 
         {{-- Home Promotion --}}
-        <li class="menu-item {{ request()->routeIs('admin.home_promotion.*') ? 'active' : '' }}">
+        {{-- <li class="menu-item {{ request()->routeIs('admin.home_promotion.*') ? 'active' : '' }}">
             <a href="{{ route('admin.home_promotion.index') }}" class="menu-link">
                 <i class="menu-icon ri ri-megaphone-line"></i>
                 <div>Home Promotion</div>
             </a>
-        </li>
+        </li> --}}
 
 
 
@@ -304,10 +346,9 @@
         border-radius: 8px;
         transition: 0.3s;
     }
+
     #layout-menu {
-    height: 110vh;
+        height: 110vh;
 
-}
-
-
+    }
 </style>
