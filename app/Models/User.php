@@ -30,7 +30,8 @@ class User extends Authenticatable
         'referral_code',
         'referred_by',
         'referral_reward_given',
-        'delete_reason'
+        'delete_reason',
+        'gender'
     ];
 
     /**

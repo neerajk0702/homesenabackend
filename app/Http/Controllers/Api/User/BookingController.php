@@ -49,6 +49,25 @@ class BookingController extends Controller
                 ], 422);
             }
         }
+        // payment method
+        $request->merge([
+            'payment_method' => match ($request->payment_method) {
+                1 => 'upi',
+                2 => 'cod',
+                // default => null
+            }
+        ]);
+
+        if (!$request->payment_method) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Invalid payment method',
+                'data' => (object) [],
+            ], 422);
+        }
+
+        // validate address ownership and location
         $address = Address::where('id', $request->addressId)
             ->where('user_id', auth()->id())
             ->first();
@@ -56,7 +75,7 @@ class BookingController extends Controller
             return response()->json([
                 'code' => 422,
                 'data' => (object) [],
-                'success' => false,
+                'status' => false,
                 'message' => 'Invalid address or missing location.'
             ], 422);
         }
@@ -75,6 +94,12 @@ class BookingController extends Controller
 
             $booking = DB::transaction(function () use ($request) {
                 $booking = $this->createBooking($request);
+                // for cod payment method
+                if ($request->payment_method === 'cod') {
+                    $booking->update([
+                        'status' => 'confirmed',
+                    ]);
+                }
                 $dates = $this->generateBookingDates($request);
                 $slots = $this->generateBookingSlots($booking, $dates, $request, false);
                 BookingSlot::insertOrIgnore($slots);
@@ -128,6 +153,7 @@ class BookingController extends Controller
             'price' => 'required|numeric|min:0',
             'total_price' => 'required|numeric|min:0',
             // 'transaction_id' => 'required|string',
+            'payment_method' => 'required|in:1,2', // 1-UPI, 2-COD  
         ]);
 
 
@@ -214,6 +240,7 @@ class BookingController extends Controller
             'status' => 'pending',
             'address_id' => $request->addressId,
             'total_price' => $request->total_price,
+            'payment_method' => $request->payment_method,
         ]);
     }
 
@@ -308,7 +335,10 @@ class BookingController extends Controller
                 'start_time' => $startTime,
                 'end_time' => $endTime,
                 'duration' => $request->duration,
-                'status' => 'pending',
+                'status' => $request->payment_method == 'cod'? 'confirmed' : 'pending',
+                'payment_method' => $request->payment_method,
+                'payment_status' => 'pending',
+                // 'status' => 'pending',
                 'price' => $request->price,
                 'otp_code' => rand(100000, 999999),
                 'is_rescheduled' => $isReschedule ? 1 : 0,

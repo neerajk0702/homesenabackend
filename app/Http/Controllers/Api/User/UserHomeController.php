@@ -185,4 +185,50 @@ class UserHomeController extends Controller
             'data' => $upcomingBooking
         ]);
     }
+
+    public function homePageRating()
+    {
+        $booking = BookingSlot::with([
+            'booking.service',
+            'expert'
+            ])
+            ->whereHas('booking', function ($q) {
+                $q->where('user_id', auth()->id());
+            })
+            ->where('rating_popup_skipped', 0)
+            ->latest()
+            ->first();
+
+        return response()->json([
+            'code' => 200,
+            'status' => true,
+            'data' => $booking,
+            'message' => 'Home Rating Data fetched successfully'
+        ]);
+    }
+
+    public function skipRatingPopup($slotId)
+    {
+        $bookingSlot = BookingSlot::where('id', $slotId)
+            ->whereHas('booking', function ($q) {
+                $q->where('user_id', auth()->id());
+            })
+            ->first();
+        if (!$bookingSlot) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'Booking slot not found',
+                'data' => (object) []
+            ]);
+        }
+        $bookingSlot->rating_popup_skipped = 1;
+        $bookingSlot->save();
+        return response()->json([
+            'code' => 200,
+            'status' => true,
+            'message' => 'Rating popup skipped successfully',
+            'data' => (object) []   
+        ]);
+    }   
 }

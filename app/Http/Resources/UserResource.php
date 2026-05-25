@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'role' => $this->role,
             'profile_completed' => $this->profile_completed,
+            'gender' => $this->gender,
             'profile_image' => $this->profile_image
                 ? asset('public/' . $this->profile_image)
                 : null,

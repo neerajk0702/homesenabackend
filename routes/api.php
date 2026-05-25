@@ -84,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // rating and review
     Route::post('rating/slot/{id}', [ReviewController::class, 'submitReview']);
     Route::get('rating/user', [ReviewController::class, 'getUserGivenReviews']);  
+
     //payment route
     Route::get('payment/methods',[PaymentController::class, 'paymentMethods']);
     Route::post('payment/pay',[PaymentController::class, 'initiatePayment']);
@@ -102,6 +103,8 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::get('coupon-list',[CouponController::class, 'couponList']);
      
      Route::get('upcoming-booking',[UserHomeController::class, 'upcomingBooking']);
+     Route::get('home-rating',[UserHomeController::class,'homePageRating']);
+     Route::post('skip-rating-popup/{slotId}', [UserHomeController::class, 'skipRatingPopup']);
      Route::put('slot/{id}/complete', [BookingController::class, 'completeBookingSlot']);
     /*-------------  expert api ---------------------------------------**/
      Route::middleware('role:expert')->prefix('expert')->group(function(){

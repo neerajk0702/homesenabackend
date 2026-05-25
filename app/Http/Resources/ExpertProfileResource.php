@@ -20,6 +20,7 @@ class ExpertProfileResource extends JsonResource
             'email' => $this->email,
             'profile_image' => $this->profile_image,
             'profile_completed' => $this->profile_completed,
+            'gender' => $this->gender,
 
             'expertDetail' => [
                 'training_center_id' => $this->expertDetail->training_center_id ?? null,

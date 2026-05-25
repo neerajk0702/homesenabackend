@@ -118,6 +118,7 @@ class ExpertController extends Controller
             // 'email' => 'nullable|email|max:255|unique:users,email,' . $expert->id,
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'training_center_id' => 'required|exists:training_centers,id|integer',
+            'gender' => 'nullable|in:male,female,other'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -129,6 +130,7 @@ class ExpertController extends Controller
         }
         $expert->name = $request->name;
         $expert->email = $request->email;
+        $expert->gender = $request->gender;
         $expert->profile_completed = true;
         // if ($request->hasFile('profile_image')) {
         //     // delete old image

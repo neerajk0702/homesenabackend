@@ -28,7 +28,8 @@ class BookingSlot extends Model
         'end_notification_sent',
         'end_notification_sent_at',
         'payment_method',
-        'payment_id'
+        'payment_id',
+        'rating_popup_skipped'
 
     ];
 

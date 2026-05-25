@@ -48,6 +48,7 @@ class UserController extends Controller
                     ],
             // 'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'gender' => 'nullable|in:male,female,other'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -59,6 +60,7 @@ class UserController extends Controller
         }
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->gender = $request->gender;
         $user->profile_completed = true;
         $profilePath = public_path('uploads/users');
         if (!file_exists($profilePath)) {
