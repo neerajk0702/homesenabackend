@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\Expert\ExpertCmsPageController;
 use App\Http\Controllers\Api\Expert\ExpertController;
 use App\Http\Controllers\Api\User\ServiceNotifyController;
 use App\Http\Controllers\Api\User\CouponController;
+use App\Http\Controllers\Api\Expert\RazorpayController;
 
 
 
@@ -99,6 +100,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //  coupon
      Route::post('apply-coupon',[CouponController::class, 'applyCoupon']);
      Route::get('coupon-list',[CouponController::class, 'couponList']);
+     
+     Route::get('upcoming-booking',[UserHomeController::class, 'upcomingBooking']);
+     Route::put('slot/{id}/complete', [BookingController::class, 'completeBookingSlot']);
     /*-------------  expert api ---------------------------------------**/
      Route::middleware('role:expert')->prefix('expert')->group(function(){
         
@@ -122,10 +126,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('sos', [ExpertSOSController::class, 'sendSOS']);
         Route::post('slots/{id}/verify-otp', [ExpertBookingController::class, 'verifyOtp']);
         Route::get('booking-reject-reason', [ExpertBookingController::class, 'bookingRejectReason']);
-        Route::put('slot/{id}/complete', [ExpertBookingController::class, 'completeBookingSlot']);
-     
-        
+        // Route::put('slot/{id}/complete', [ExpertBookingController::class, 'completeBookingSlot']);
     });
 
+        // Route::post('/generate-qr', [RazorpayController::class, 'generateQr']);
+        // Route::get('/check-payment/{qrId}', [RazorpayController::class, 'checkPayment']);
+        // Route::post('/razorpay-webhook', [RazorpayController::class, 'webhook']);
+
 });
-   
+        Route::post('/generate-qr', [RazorpayController::class, 'generateQr']);
+        Route::get('/check-payment/{qrId}', [RazorpayController::class, 'checkPayment']);
+        Route::post('/razorpay-webhook', [RazorpayController::class, 'webhook']);

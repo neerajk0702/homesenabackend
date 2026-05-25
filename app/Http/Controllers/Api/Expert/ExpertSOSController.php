@@ -12,6 +12,7 @@ class ExpertSOSController extends Controller
 {
     public function sendSOS(Request $request)
     {
+
         try {
             $validator = Validator::make($request->all(), [
                 'latitude' => 'required',
@@ -24,7 +25,7 @@ class ExpertSOSController extends Controller
                     'code' => 422,
                     'status' => false,
                     'message' => $validator->errors()->first(),
-                    'data' => (object)[]
+                    'data' => (object) []
                 ], 422);
             }
             // Auth Expert + Relations
@@ -40,7 +41,7 @@ class ExpertSOSController extends Controller
                     'status' => false,
                     'message' => 'Wait before sending another SOS',
                     'code' => 422,
-                    'data' => (object)[]
+                    'data' => (object) []
                 ], 422);
             }
             //  Save SOS
@@ -61,21 +62,44 @@ class ExpertSOSController extends Controller
                 . "Location: {$mapUrl}";
 
             //  Send WhatsApp To Emergency Contacts
-           
-            if ( $expert->expertDetail && $expert->expertDetail->emergencyContacts->count()) {
+
+
+            if ($expert->expertDetail && $expert->expertDetail->emergencyContacts->count()) {
                 foreach ($expert->expertDetail->emergencyContacts as $contact) {
-                    Http::withToken(env('WHATSAPP_TOKEN'))
+                    $response = Http::withToken(env('WHATSAPP_TOKEN'))
                         ->post(
                             'https://graph.facebook.com/v23.0/' . env('WHATSAPP_PHONE_NUMBER_ID') . '/messages',
                             [
                                 'messaging_product' => 'whatsapp',
-                                'to' => $contact->phone,
+                                'to' => '916397524283',
+                                // 'to' => $contact->phone,
                                 'type' => 'text',
                                 'text' => [
                                     'body' => $message
                                 ]
                             ]
                         );
+                    /*
+   |--------------------------------------------------------------------------
+   | API Response
+   |--------------------------------------------------------------------------
+   */
+
+                    \Log::info('WhatsApp API Response', [
+                        'phone' => $contact->phone,
+                        'status' => $response->status(),
+                        'response' => $response->json(),
+                    ]);
+                    if ($response->successful()) {
+
+                        \Log::info('WhatsApp message sent successfully');
+
+                    } else {
+
+                        \Log::error('WhatsApp message failed', [
+                            'error' => $response->body()
+                        ]);
+                    }
                 }
             }
             return response()->json([
@@ -89,7 +113,7 @@ class ExpertSOSController extends Controller
                 'status' => false,
                 'code' => 422,
                 'message' => $e->getMessage(),
-                'data' => (object)[]
+                'data' => (object) []
             ], 422);
         }
     }

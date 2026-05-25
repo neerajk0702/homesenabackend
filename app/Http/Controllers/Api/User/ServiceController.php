@@ -110,7 +110,7 @@ class ServiceController extends Controller
                 'data' => (object) []
             ], 422);
         }
-        $radiusKm = 1;
+        $radiusKm = .2; // 200 meters
         $exists = ServiceLocation::select('*')
             ->selectRaw("
             (6371 * acos(

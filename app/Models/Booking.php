@@ -25,7 +25,8 @@ class Booking extends Model
         'address_id',
         'cancel_reason',
         'cancelled_at',
-        'is_rescheduled'
+        'is_rescheduled',
+        'payment_method'
     ];
 
     protected $casts = [

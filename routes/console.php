@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('app:notify-nearby-experts-before-slot')->everyMinute();
 Schedule::command('app:send-push-notification')->everyTwoMinutes();
+Schedule::command('app:send-booking-end-reminder')->everyMinute();
