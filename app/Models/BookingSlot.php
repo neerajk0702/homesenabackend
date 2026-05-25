@@ -24,7 +24,12 @@ class BookingSlot extends Model
         'cancelled_at',
         'is_rescheduled',
         'is_refunded',
-        'notified'
+        'notified',
+        'end_notification_sent',
+        'end_notification_sent_at',
+        'payment_method',
+        'payment_id'
+
     ];
 
     protected $casts = [

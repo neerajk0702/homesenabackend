@@ -17,7 +17,7 @@ class CouponController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'coupon_code' => 'required|string',
-            'amount' => 'required|numeric|min:1',
+            // 'amount' => 'required|numeric|min:1',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -142,20 +142,20 @@ class CouponController extends Controller
         | Calculate Discount
         |--------------------------------------------------------------------------
         */
-        if ($coupon->discount_type == 'percentage') {
-            $discount = ($request->amount * $coupon->discount_value) / 100;
-            // max discount cap
-            if ($coupon->maximum_discount_amount && $discount > $coupon->maximum_discount_amount) {
-                $discount = $coupon->maximum_discount_amount;
-            }
-        } else {
-            $discount = $coupon->discount_value;
-        }
-        // prevent negative
-        if ($discount > $request->amount) {
-            $discount = $request->amount;
-        }
-        $finalAmount = $request->amount - $discount;
+        // if ($coupon->discount_type == 'percentage') {
+        //     $discount = ($request->amount * $coupon->discount_value) / 100;
+        //     // max discount cap
+        //     if ($coupon->maximum_discount_amount && $discount > $coupon->maximum_discount_amount) {
+        //         $discount = $coupon->maximum_discount_amount;
+        //     }
+        // } else {
+        //     $discount = $coupon->discount_value;
+        // }
+        // // prevent negative
+        // if ($discount > $request->amount) {
+        //     $discount = $request->amount;
+        // }
+        // $finalAmount = $request->amount - $discount;
         return response()->json([
             'status' => true,
             'code' => 200,
@@ -164,9 +164,11 @@ class CouponController extends Controller
                 'coupon_id' => $coupon->id,
                 'coupon_code' => $coupon->code,
                 'discount_type' => $coupon->discount_type,
-                'discount_value' => $coupon->discount_value,
-                'discount_amount' => round($discount, 2),
-                'final_amount' => round($finalAmount, 2),
+                // 'discount_value' => $coupon->discount_value,
+                'discount_value' => (int) round($coupon->discount_value, 0),
+                'description' => $coupon->description,
+                // 'discount_amount' => round($discount, 2),
+                // 'final_amount' => round($finalAmount, 2),
             ]
         ]);
     }

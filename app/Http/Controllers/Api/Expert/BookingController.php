@@ -15,9 +15,10 @@ use Illuminate\Support\Facades\DB;
 use App\Models\BookingSlotLog;
 use App\Http\Resources\BookingSlotResource;
 use App\Models\ExpertBookingRejectReason;
-use App\Models\Wallet;
-use App\Models\WalletTransaction;
-use App\Models\User;
+// use App\Models\Wallet;
+// use App\Models\WalletTransaction;
+// use App\Models\User;
+// use App\Models\ReferEarnSetting;
 class BookingController extends Controller
 {
     // public function bookingList(Request $request)
@@ -531,93 +532,100 @@ class BookingController extends Controller
         ]);
     }
 
-    public function completeBookingSlot($slotId)
-    {
-        try {
-            $bookingSlot = DB::transaction(function () use ($slotId) {
-                //  Lock row to prevent duplicate completion
-                $bookingSlot = BookingSlot::with('booking.user')
-                    ->where('id', $slotId)
-                    ->where('expert_id', auth()->id())
-                    // ->where('status', 'ongoing')
-                    ->lockForUpdate()
-                    ->first();
-                if (!$bookingSlot) {
-                    throw new \Exception('Booking not found or unauthorized');
-                }
-                //  Already completed
-                if ($bookingSlot->status === 'completed') {
-                    throw new \Exception('Booking already completed');
-                }
-                $bookingSlot->status = 'completed';
-                $bookingSlot->save();
-                $booking = $bookingSlot->booking;
-                // check pending slots
-                $pendingSlots = $booking->bookingSlots()
-                    ->where('status', '!=', 'completed')
-                    ->count();
-                // if all slots completed
-                if ($pendingSlots == 0) {
-                    $booking->status = 'completed';
-                    $booking->save();
-                }
-                //  Correct relation
-                $user = $bookingSlot->booking->user;
-                if (!$user) {
-                      throw new \Exception('User not found');
-                }
-                //  Referral logic (first time only)
-                if ($user->referred_by && $user->referral_reward_given == 0) {
-                    $reward = 100;
-                    $referrer = User::find($user->referred_by);
-                    if ($referrer) {
-                        //  Lock wallet
-                        $wallet = Wallet::where('user_id', $referrer->id)
-                            ->lockForUpdate()
-                            ->first();
-                        if (!$wallet) {
-                            $wallet = Wallet::create([
-                                'user_id' => $referrer->id,
-                                'balance' => 0
-                            ]);
-                        }
-                        //  Safe increment
-                        $wallet->increment('balance', $reward);
-                        //  Transaction log
-                        WalletTransaction::create([
-                            'user_id' => $referrer->id,
-                            'wallet_id' => $wallet->id,
-                            'amount' => $reward,
-                            'type' => 'credit',
-                            'source' => 'referral',
-                            'reference_id' => $bookingSlot->id,
-                            'description' => 'Referral reward for first completed booking'
-                        ]);
+  
+    // public function completeBookingSlot($slotId)
+    // {
+    //     try {
+    //         $bookingSlot = DB::transaction(function () use ($slotId) {
+    //             //  Lock row to prevent duplicate completion
+    //             $bookingSlot = BookingSlot::with('booking.user')
+    //                 ->where('id', $slotId)
+    //                 ->where('expert_id', auth()->id())
+    //                 // ->where('status', 'ongoing')
+    //                 ->lockForUpdate()
+    //                 ->first();
+    //             if (!$bookingSlot) {
+    //                 throw new \Exception('Booking not found or unauthorized');
+    //             }
+    //             //  Already completed
+    //             if ($bookingSlot->status === 'completed') {
+    //                 throw new \Exception('Booking already completed');
+    //             }
+    //             $bookingSlot->status = 'completed';
+    //             $bookingSlot->save();
+    //               // Get booking
+    //             $booking = $bookingSlot->booking;
+    //              // check pending slots
+    //             // $pendingSlots = $booking->bookingSlots()
+    //             //     ->where('status', '!=', 'completed')
+    //             //     ->count();
+    //                  // Check pending slots
+                     
+    //             $pendingSlots = $booking->slots()
+    //                         ->whereNotIn('status', ['completed', 'cancelled'])
+    //                         ->count();
+    //             // if all slots completed
+    //             if ($pendingSlots == 0) {
+    //                 $booking->status = 'completed';
+    //                 $booking->save();
+    //             }
+    //             //  Correct relation
+    //             $user = $bookingSlot->booking->user;
+    //              if (!$user) {
+    //                   throw new \Exception('User not found');
+    //             }
+    //             //  Referral logic (first time only)
+    //             if ($user->referred_by && $user->referral_reward_given == 0) {
+    //                 $reward =  ReferEarnSetting::first() ? ReferEarnSetting::first()->referral_amount : 100;
+    //                 $referrer = User::find($user->referred_by);
+    //                 if ($referrer) {
+    //                     //  Lock wallet
+    //                     $wallet = Wallet::where('user_id', $referrer->id)
+    //                         ->lockForUpdate()
+    //                         ->first();
+    //                     if (!$wallet) {
+    //                         $wallet = Wallet::create([
+    //                             'user_id' => $referrer->id,
+    //                             'balance' => 0
+    //                         ]);
+    //                     }
+    //                     //  Safe increment
+    //                     $wallet->increment('balance', $reward);
+    //                     //  Transaction log
+    //                     WalletTransaction::create([
+    //                         'user_id' => $referrer->id,
+    //                         'wallet_id' => $wallet->id,
+    //                         'amount' => $reward,
+    //                         'type' => 'credit',
+    //                         'source' => 'referral',
+    //                         'reference_id' => $bookingSlot->id,
+    //                         'description' => 'Referral reward for first completed booking'
+    //                     ]);
 
-                        //  Mark reward given
-                        $user->update([
-                            'referral_reward_given' => 1
-                        ]);
-                    }
-                }
-                return $bookingSlot;
-            });
-            // $bookingSlot->load('booking.user');
-            return response()->json([
-                'code' => 200,
-                'status' => true,
-                'message' => 'Booking completed successfully',
-                'data' => new BookingSlotResource($bookingSlot)
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'code' => 422,
-                'status' => false,
-                'message' => $e->getMessage(),
-                'data' => (object) []
-            ]);
-        }
-    }
+    //                     //  Mark reward given
+    //                     $user->update([
+    //                         'referral_reward_given' => 1
+    //                     ]);
+    //                 }
+    //             }
+    //             return $bookingSlot;
+    //         });
+    //         // $bookingSlot->load('booking.user');
+    //         return response()->json([
+    //             'code' => 200,
+    //             'status' => true,
+    //             'message' => 'Booking completed successfully',
+    //             'data' => new BookingSlotResource($bookingSlot)
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'code' => 422,
+    //             'status' => false,
+    //             'message' => $e->getMessage(),
+    //             'data' => (object) []
+    //         ]);
+    //     }
+    // }
 
 }
 
