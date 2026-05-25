@@ -29,18 +29,45 @@
 
             <div class="col-md-10">
                 <div class="row">
-                    <div class="col-md-4 mb-2"><strong>Name:</strong> {{ $expert->name ?? 'N/A' }}</div>
-                    <div class="col-md-4 mb-2"><strong>Email:</strong> {{ $expert->email ?? 'N/A' }}</div>
-                    <div class="col-md-4 mb-2"><strong>Phone:</strong> {{ $expert->phone ?? 'N/A' }}</div>
 
-                    <div class="col-md-4 mb-2">
+                    <div class="col-md-3 mb-2">
+                        <strong>Name:</strong>
+                        {{ $expert->name ?? 'N/A' }}
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <strong>Email:</strong>
+                        {{ $expert->email ?? 'N/A' }}
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <strong>Phone:</strong>
+                        {{ $expert->phone ?? 'N/A' }}
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <strong>Gender:</strong>
+                        {{ $expert->gender ? ucfirst($expert->gender) : 'N/A' }}
+                    </div>
+
+                    <div class="col-md-3 mb-2">
                         <strong>Status:</strong>
+
                         {!! $expert->status
                             ? '<span class="badge bg-label-success rounded-pill">Active</span>'
                             : '<span class="badge bg-label-danger rounded-pill">Inactive</span>' !!}
                     </div>
-                    <div class="col-md-4 mb-2"><strong>Pan No:</strong> {{ $expert->expertDetail?->pan_number ?? 'N/A' }}</div>
-                    <div class="col-md-4 mb-2"><strong>Aadhar No:</strong> {{ $expert->expertDetail?->aadhar_number ?? 'N/A' }}</div>
+
+                    <div class="col-md-3 mb-2">
+                        <strong>Pan No:</strong>
+                        {{ $expert->expertDetail?->pan_number ?? 'N/A' }}
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <strong>Aadhar No:</strong>
+                        {{ $expert->expertDetail?->aadhar_number ?? 'N/A' }}
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -189,7 +216,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
 
             // 1. On page load, restore the active tab from the ?tab= URL param
             const urlParams = new URLSearchParams(window.location.search);
@@ -203,8 +230,8 @@
             }
 
             // 2. When a tab is clicked, sync URL and reset the tab to page 1
-            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function (tabEl) {
-                tabEl.addEventListener('shown.bs.tab', function (e) {
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function(tabEl) {
+                tabEl.addEventListener('shown.bs.tab', function(e) {
                     const tabId = e.target.getAttribute('data-bs-target').replace('#', '');
                     const url = new URL(window.location.href);
                     url.searchParams.set('tab', tabId);
@@ -221,7 +248,8 @@
                     // Reset DOM to page 1 if currently on another page
                     const container = document.getElementById(`${tabId}-container`);
                     if (container) {
-                        const activePageEl = container.querySelector('.page-item.active .page-link, .page-item.active span.page-link');
+                        const activePageEl = container.querySelector(
+                            '.page-item.active .page-link, .page-item.active span.page-link');
                         if (activePageEl && activePageEl.textContent.trim() !== '1') {
                             const fetchUrl = new URL(window.location.href);
                             fetchUrl.searchParams.set('ajax_tab', tabId);
@@ -229,25 +257,27 @@
                             container.style.opacity = '0.5';
 
                             fetch(fetchUrl.toString(), {
-                                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                            })
-                            .then(r => r.text())
-                            .then(html => {
-                                container.innerHTML = html;
-                                container.style.opacity = '1';
-                            })
-                            .catch(err => {
-                                console.error('Error fetching page 1:', err);
-                                container.style.opacity = '1';
-                            });
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                .then(r => r.text())
+                                .then(html => {
+                                    container.innerHTML = html;
+                                    container.style.opacity = '1';
+                                })
+                                .catch(err => {
+                                    console.error('Error fetching page 1:', err);
+                                    container.style.opacity = '1';
+                                });
                         }
                     }
                 });
             });
 
             // 3. Intercept pagination links and same-page reset links inside tab panes
-            document.querySelectorAll('.tab-pane').forEach(function (pane) {
-                pane.addEventListener('click', function (e) {
+            document.querySelectorAll('.tab-pane').forEach(function(pane) {
+                pane.addEventListener('click', function(e) {
                     const link = e.target.closest('a');
                     if (!link || !link.href) return;
 
@@ -256,7 +286,8 @@
                     const container = document.getElementById(`${tabId}-container`);
                     if (!container) return;
 
-                    const isPagination = [...linkUrl.searchParams.keys()].some(k => k.endsWith('_page'));
+                    const isPagination = [...linkUrl.searchParams.keys()].some(k => k.endsWith(
+                        '_page'));
                     const isSamePage = linkUrl.pathname === window.location.pathname;
 
                     if (!isPagination && !isSamePage) return;
@@ -266,28 +297,30 @@
                     container.style.opacity = '0.5';
 
                     fetch(linkUrl.toString(), {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(r => r.text())
-                    .then(html => {
-                        container.innerHTML = html;
-                        container.style.opacity = '1';
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(r => r.text())
+                        .then(html => {
+                            container.innerHTML = html;
+                            container.style.opacity = '1';
 
-                        const newUrl = new URL(linkUrl.toString());
-                        newUrl.searchParams.delete('ajax_tab');
-                        newUrl.searchParams.set('tab', tabId);
-                        history.replaceState(null, '', newUrl.toString());
-                    })
-                    .catch(err => {
-                        console.error('Error fetching data:', err);
-                        container.style.opacity = '1';
-                    });
+                            const newUrl = new URL(linkUrl.toString());
+                            newUrl.searchParams.delete('ajax_tab');
+                            newUrl.searchParams.set('tab', tabId);
+                            history.replaceState(null, '', newUrl.toString());
+                        })
+                        .catch(err => {
+                            console.error('Error fetching data:', err);
+                            container.style.opacity = '1';
+                        });
                 });
             });
 
             // 4. Intercept filter form submissions inside tab panes via AJAX
-            document.querySelectorAll('.tab-pane').forEach(function (pane) {
-                pane.addEventListener('submit', function (e) {
+            document.querySelectorAll('.tab-pane').forEach(function(pane) {
+                pane.addEventListener('submit', function(e) {
                     const form = e.target.closest('form');
                     if (!form) return;
 
@@ -311,22 +344,24 @@
                     container.style.opacity = '0.5';
 
                     fetch(fetchUrl.toString(), {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(r => r.text())
-                    .then(html => {
-                        container.innerHTML = html;
-                        container.style.opacity = '1';
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(r => r.text())
+                        .then(html => {
+                            container.innerHTML = html;
+                            container.style.opacity = '1';
 
-                        const newUrl = new URL(fetchUrl.toString());
-                        newUrl.searchParams.delete('ajax_tab');
-                        newUrl.searchParams.set('tab', tabId);
-                        history.replaceState(null, '', newUrl.toString());
-                    })
-                    .catch(err => {
-                        console.error('Error applying filter:', err);
-                        container.style.opacity = '1';
-                    });
+                            const newUrl = new URL(fetchUrl.toString());
+                            newUrl.searchParams.delete('ajax_tab');
+                            newUrl.searchParams.set('tab', tabId);
+                            history.replaceState(null, '', newUrl.toString());
+                        })
+                        .catch(err => {
+                            console.error('Error applying filter:', err);
+                            container.style.opacity = '1';
+                        });
                 });
             });
 

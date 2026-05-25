@@ -32,6 +32,7 @@
                     <div class="col-md-4 mb-2"><strong>Name:</strong> {{ $user->name }}</div>
                     <div class="col-md-4 mb-2"><strong>Email:</strong> {{ $user->email }}</div>
                     <div class="col-md-4 mb-2"><strong>Phone:</strong> {{ $user->phone ?? 'N/A' }}</div>
+                    <div class="col-md-4 mb-2"><strong>Gender:</strong>{{ $user->gender ? ucfirst($user->gender) : 'N/A' }}</div>
 
                     <div class="col-12 col-sm-6 col-md-4 mb-2">
                         <strong>Profile Completed:</strong>
@@ -123,7 +124,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
 
             // 1. On page load, restore the active tab from the ?tab= URL param
             const urlParams = new URLSearchParams(window.location.search);
@@ -137,48 +138,49 @@
             }
 
             // 2. When a tab is clicked, keep the URL in sync (no reload) and reset to page 1
-            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function (tabEl) {
-                tabEl.addEventListener('shown.bs.tab', function (e) {
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function(tabEl) {
+                tabEl.addEventListener('shown.bs.tab', function(e) {
                     const tabId = e.target.getAttribute('data-bs-target').replace('#', '');
                     const url = new URL(window.location.href);
                     url.searchParams.set('tab', tabId);
-                    
+
                     // Remove all pagination params from URL so a fresh reload starts on page 1
                     const keysToDelete = [];
                     url.searchParams.forEach((val, key) => {
                         if (key.endsWith('_page')) keysToDelete.push(key);
                     });
                     keysToDelete.forEach(k => url.searchParams.delete(k));
-                    
+
                     history.replaceState(null, '', url.toString());
 
                     // Reset the DOM to page 1 if it's currently on another page
                     const containerId = `${tabId}-container`;
                     const container = document.getElementById(containerId);
                     if (container) {
-                        const activePageEl = container.querySelector('.page-item.active .page-link, .page-item.active span.page-link');
+                        const activePageEl = container.querySelector(
+                            '.page-item.active .page-link, .page-item.active span.page-link');
                         if (activePageEl && activePageEl.textContent.trim() !== '1') {
-                            
+
                             const fetchUrl = new URL(window.location.href);
                             fetchUrl.searchParams.set('ajax_tab', tabId);
                             fetchUrl.searchParams.set(`${tabId}_page`, 1);
-                            
+
                             container.style.opacity = '0.5';
 
                             fetch(fetchUrl.toString(), {
-                                headers: {
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            })
-                            .then(response => response.text())
-                            .then(html => {
-                                container.innerHTML = html;
-                                container.style.opacity = '1';
-                            })
-                            .catch(error => {
-                                console.error('Error fetching page 1:', error);
-                                container.style.opacity = '1';
-                            });
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                .then(response => response.text())
+                                .then(html => {
+                                    container.innerHTML = html;
+                                    container.style.opacity = '1';
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching page 1:', error);
+                                    container.style.opacity = '1';
+                                });
                         }
                     }
                 });
@@ -187,8 +189,8 @@
             // 3. Intercept clicks inside each tab pane:
             //    - Pagination links (contain a _page= param) → fetch new page
             //    - Same-page reset/filter links (same pathname) → fetch filtered partial
-            document.querySelectorAll('.tab-pane').forEach(function (pane) {
-                pane.addEventListener('click', function (e) {
+            document.querySelectorAll('.tab-pane').forEach(function(pane) {
+                pane.addEventListener('click', function(e) {
                     const link = e.target.closest('a');
                     if (!link || !link.href) return;
 
@@ -197,7 +199,8 @@
                     const container = document.getElementById(`${tabId}-container`);
                     if (!container) return;
 
-                    const isPagination = [...linkUrl.searchParams.keys()].some(k => k.endsWith('_page'));
+                    const isPagination = [...linkUrl.searchParams.keys()].some(k => k.endsWith(
+                        '_page'));
                     const isSamePage = linkUrl.pathname === window.location.pathname;
 
                     // Only intercept pagination links or same-page links (e.g. reset filter)
@@ -209,28 +212,30 @@
                     container.style.opacity = '0.5';
 
                     fetch(linkUrl.toString(), {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(response => response.text())
-                    .then(html => {
-                        container.innerHTML = html;
-                        container.style.opacity = '1';
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            container.innerHTML = html;
+                            container.style.opacity = '1';
 
-                        const newUrl = new URL(linkUrl.toString());
-                        newUrl.searchParams.delete('ajax_tab');
-                        newUrl.searchParams.set('tab', tabId);
-                        history.replaceState(null, '', newUrl.toString());
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data:', error);
-                        container.style.opacity = '1';
-                    });
+                            const newUrl = new URL(linkUrl.toString());
+                            newUrl.searchParams.delete('ajax_tab');
+                            newUrl.searchParams.set('tab', tabId);
+                            history.replaceState(null, '', newUrl.toString());
+                        })
+                        .catch(error => {
+                            console.error('Error fetching data:', error);
+                            container.style.opacity = '1';
+                        });
                 });
             });
 
             // 4. Intercept filter form submissions inside tab panes via AJAX
-            document.querySelectorAll('.tab-pane').forEach(function (pane) {
-                pane.addEventListener('submit', function (e) {
+            document.querySelectorAll('.tab-pane').forEach(function(pane) {
+                pane.addEventListener('submit', function(e) {
                     const form = e.target.closest('form');
                     if (!form) return;
 
@@ -256,27 +261,28 @@
                     container.style.opacity = '0.5';
 
                     fetch(fetchUrl.toString(), {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(response => response.text())
-                    .then(html => {
-                        container.innerHTML = html;
-                        container.style.opacity = '1';
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            container.innerHTML = html;
+                            container.style.opacity = '1';
 
-                        // Update browser URL to reflect active filters without reloading
-                        const newUrl = new URL(fetchUrl.toString());
-                        newUrl.searchParams.delete('ajax_tab');
-                        newUrl.searchParams.set('tab', tabId);
-                        history.replaceState(null, '', newUrl.toString());
-                    })
-                    .catch(error => {
-                        console.error('Error applying filter:', error);
-                        container.style.opacity = '1';
-                    });
+                            // Update browser URL to reflect active filters without reloading
+                            const newUrl = new URL(fetchUrl.toString());
+                            newUrl.searchParams.delete('ajax_tab');
+                            newUrl.searchParams.set('tab', tabId);
+                            history.replaceState(null, '', newUrl.toString());
+                        })
+                        .catch(error => {
+                            console.error('Error applying filter:', error);
+                            container.style.opacity = '1';
+                        });
                 });
             });
 
         });
     </script>
 @endpush
-

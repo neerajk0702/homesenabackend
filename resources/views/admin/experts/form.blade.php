@@ -88,6 +88,40 @@
                             @enderror
                         </div>
                     </div>
+                    <!-- Gender -->
+                    <div class="col-lg-4 col-md-6 col-12 mb-3">
+                        <label class="form-label">Gender</label>
+
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ri-user-star-line"></i>
+                            </span>
+
+                            <select name="gender" class="form-select @error('gender') is-invalid @enderror">
+
+                                <option value="">Select Gender</option>
+
+                                <option value="male" {{ old('gender', $expert->gender) == 'male' ? 'selected' : '' }}>
+                                    Male
+                                </option>
+
+                                <option value="female" {{ old('gender', $expert->gender) == 'female' ? 'selected' : '' }}>
+                                    Female
+                                </option>
+
+                                <option value="other" {{ old('gender', $expert->gender) == 'other' ? 'selected' : '' }}>
+                                    Other
+                                </option>
+
+                            </select>
+
+                            @error('gender')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
                     <!-- password -->
                     {{-- <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Password</label>
