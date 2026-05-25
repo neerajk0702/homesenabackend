@@ -172,6 +172,7 @@ class UserController extends Controller
 
             //  IMPORTANT
             'status' => 'required|in:0,1',
+            'gender' => 'nullable|in:male,female,other',
         ]);
     }
 

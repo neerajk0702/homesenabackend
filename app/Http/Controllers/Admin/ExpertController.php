@@ -374,6 +374,7 @@ class ExpertController extends Controller
                             }),
                     ],
             'password' => 'nullable|min:8',
+            'gender' => 'nullable|in:male,female,other',
             'device_type' => $id ? 'nullable' : 'required|in:android,ios',
             'service_location_id' => 'required|exists:service_locations,id',
             'device_id' => $id ? 'nullable' : 'required',

@@ -92,15 +92,19 @@ document.querySelectorAll(".faq-question").forEach(function (btn) {
 
     /* service info per card */
     var serviceData = [
-        { title: "Bathroom Cleaning", subtitle: "Sparkling clean bathrooms with deep sanitization" },
-        { title: "Laundry", subtitle: "Fresh, folded laundry delivered with care" },
-        { title: "Utensils", subtitle: "Spotless dishes and utensil cleaning service" },
-        { title: "Outdoor Cleaning", subtitle: "Pristine outdoor spaces, patios and driveways" },
-        { title: "Kitchen Cleaning", subtitle: "Hygienic kitchen deep-clean from top to bottom" },
-        { title: "Window Cleaning", subtitle: "Crystal-clear windows inside and out" },
-        { title: "Sweeping", subtitle: "Thorough floor sweeping for every room" },
-        { title: "Fan Cleaning", subtitle: "Dust-free fans for fresh, clean air" },
-        { title: "Kitchen Prep", subtitle: "Meal prep assistance and kitchen organization" }
+       
+  { title: "Bathroom Cleaning", subtitle: "Deep-clean & sanitized bathrooms" },
+  { title: "Laundry", subtitle: "Fresh & neatly folded clothes" },
+  { title: "Dish Washing", subtitle: "Sparkling clean dishes" },
+  { title: "Outdoor Cleaning", subtitle: "Clean patios & outdoor spaces" },
+  { title: "Kitchen Cleaning", subtitle: "Deep-cleaned hygienic kitchen" },
+  { title: "Window Cleaning", subtitle: "Crystal-clear shining windows" },
+  { title: "Home Cleaning", subtitle: "Clean & fresh living spaces" },
+  { title: "Dusting and Wiping", subtitle: "Dust-free & spotless surfaces" },
+  { title: "Kitchen Prep", subtitle: "Smart meal prep assistance" },
+  { title: "Ironing", subtitle: "Perfectly pressed clothes" }
+
+
     ];
 
     /* ---- SPRING PHYSICS ---- */

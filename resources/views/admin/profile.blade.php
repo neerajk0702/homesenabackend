@@ -119,7 +119,18 @@
                                 <span class="fw-semibold">{{ $user->phone ?? 'N/A' }}</span>
                             </div>
                         </div>
+<div class="col-md-6">
+    <div class="d-flex justify-content-between align-items-center p-3 border rounded-3 shadow-sm">
+        <div class="d-flex align-items-center gap-2">
+            <i class="ri-user-3-line text-primary"></i>
+            <small class="text-muted">Gender</small>
+        </div>
 
+        <span class="fw-semibold">
+            {{ $user->gender ? ucfirst($user->gender) : 'N/A' }}
+        </span>
+    </div>
+</div>
                         <!-- Role -->
                         <div class="col-md-6">
                             <div class="d-flex justify-content-between align-items-center p-3 border rounded-3 shadow-sm">

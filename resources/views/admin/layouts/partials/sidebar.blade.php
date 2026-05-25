@@ -75,13 +75,14 @@
                 <div>Payments</div>
             </a>
         </li> --}}
+        {{-- Marketing Management --}}
         <li
             class="menu-item 
-    {{ request()->routeIs('admin.push_notifications.*') ||
-    request()->routeIs('admin.home_promotion.*') ||
-    request()->routeIs('admin.coupons.*')
-        ? 'active open'
-        : '' }}">
+            {{ request()->routeIs('admin.push_notifications.*') ||
+            request()->routeIs('admin.home_promotion.*') ||
+            request()->routeIs('admin.coupons.*')
+                ? 'active open'
+                : '' }}">
 
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon ri ri-megaphone-line"></i>

@@ -16,55 +16,60 @@
 
                  <div class="arc-carousel__item" data-index="0">
                      <div class="arc-card">
-                         <img src="{{ asset('landing/img/service/01.jpeg') }}" alt="Bathroom Cleaning">
+                         <img src="{{ asset('landing/img/service/Bathroom Cleaning.png') }}" alt="Bathroom Cleaning">
                      </div>
                  </div>
 
                  <div class="arc-carousel__item" data-index="1">
                      <div class="arc-card">
-                         <img src="{{ asset('landing/img/service/02.jpeg') }}" alt="Laundry">
+                         <img src="{{ asset('landing/img/service/Lanudary.png') }}" alt="Laundry">
                      </div>
                  </div>
 
                  <div class="arc-carousel__item" data-index="2">
                      <div class="arc-card">
-                         <img src="{{ asset('landing/img/service/03.jpeg') }}" alt="Utensils">
+                         <img src="{{ asset('landing/img/service/Dish Washing.png') }}" alt="Dish Washing">
                      </div>
                  </div>
 
                  <div class="arc-carousel__item" data-index="3">
                      <div class="arc-card">
-                         <img src="{{ asset('landing/img/service/04.png') }}" alt="Outdoor Cleaning">
+                         <img src="{{ asset('landing/img/service/Outdoor Cleaning.png') }}" alt="Outdoor Cleaning">
                      </div>
                  </div>
 
                  <div class="arc-carousel__item" data-index="4">
                      <div class="arc-card">
-                         <img src="{{ asset('landing/img/service/05.jpeg') }}" alt="Kitchen Cleaning">
+                         <img src="{{ asset('landing/img/service/kitchen cleaning.png') }}" alt="Kitchen Cleaning">
                      </div>
                  </div>
 
                  <div class="arc-carousel__item" data-index="5">
                      <div class="arc-card">
-                         <img src="{{ asset('landing/img/service/06.jpeg') }}" alt="Window Cleaning">
+                         <img src="{{ asset('landing/img/service/Window Cleaning.png') }}" alt="Window Cleaning">
                      </div>
                  </div>
 
                  <div class="arc-carousel__item" data-index="6">
                      <div class="arc-card">
-                         <img src="{{ asset('landing/img/service/07.png') }}" alt="Sweeping">
+                         <img src="{{ asset('landing/img/service/Home Cleaning.png') }}" alt="Home Cleaning">
                      </div>
                  </div>
 
                  <div class="arc-carousel__item" data-index="7">
                      <div class="arc-card">
-                         <img src="{{ asset('landing/img/service/08.png') }}" alt="Fan Cleaning">
+                         <img src="{{ asset('landing/img/service/Dusting and wiping.png') }}" alt="Dusting and wiping">
                      </div>
                  </div>
 
                  <div class="arc-carousel__item" data-index="8">
                      <div class="arc-card">
-                         <img src="{{ asset('landing/img/service/09.png') }}" alt="Kitchen Prep">
+                         <img src="{{ asset('landing/img/service/Kitchen Prep.png') }}" alt="Kitchen Prep">
+                     </div>
+                 </div>
+                 <div class="arc-carousel__item" data-index="9">
+                     <div class="arc-card">
+                         <img src="{{ asset('landing/img/service/Ironing.png') }}" alt="Ironing">
                      </div>
                  </div>
 
