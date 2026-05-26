@@ -35,6 +35,8 @@ class ExpertBookingSlotResource extends JsonResource
             'status' => $this->status,
             'price' => $this->price,
             'check_in_time' => $this->check_in_time ? $this->check_in_time : null,
+            'payment_status' => $this->payment_status,
+            'payment_method' => $this->payment_method ? $this->payment_method : null,
 
               // BOOKING INFO
             'booking' => [
@@ -49,6 +51,8 @@ class ExpertBookingSlotResource extends JsonResource
                 'time' => $this->booking?->time,
                 // 'price_per_slot' => $this->booking?->price,
                 'total_price' => $this->booking?->total_price,
+                'payment_method' => $this->booking?->payment_method ?? null,
+                'payment_status' => $this->booking?->payment_status ?? null,
 
                 // 'latitude' => $this->booking?->latitude,
                 // 'longitude' => $this->booking?->longitude,

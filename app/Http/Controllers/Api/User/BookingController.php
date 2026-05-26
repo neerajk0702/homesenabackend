@@ -23,6 +23,8 @@ use App\Models\Refund;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use App\Models\ReferEarnSetting;
+use App\Models\Coupon;
+use App\Models\CouponHistory;
 
 class BookingController extends Controller
 {
@@ -54,7 +56,7 @@ class BookingController extends Controller
             'payment_method' => match ($request->payment_method) {
                 1 => 'upi',
                 2 => 'cod',
-                // default => null
+            // default => null
             }
         ]);
 
@@ -93,6 +95,36 @@ class BookingController extends Controller
             // TRANSACTION START
 
             $booking = DB::transaction(function () use ($request) {
+                $originalAmount = $request->total_price;
+                $discountAmount = 0;
+                $coupon = null;
+                if ($request->filled('coupon_code')) {
+                    $coupon = Coupon::where('code', $request->coupon_code)
+                        ->where('status', 1)
+                        ->first();
+                    if ($coupon) {
+                        // percentage coupon
+                        if ($coupon->discount_type == 'percentage') {
+                            $discountAmount = ($originalAmount * $coupon->value) / 100;
+                        } else {
+                            // fixed coupon
+                            $discountAmount = $coupon->value;
+                        }
+                    }
+                }
+                $totalAmount = max($originalAmount - $discountAmount, 0);
+                /*
+                |--------------------------------------------------------------------------
+                | ADD REQUEST VALUES
+                |--------------------------------------------------------------------------
+                */
+                $request->merge([
+                    'original_price' => $originalAmount,
+                    'discount_price' => $discountAmount,
+                    'total_price' => $totalAmount,
+                    'coupon_id' => $coupon ? $coupon->id : null,
+                    'coupon_code' => $coupon ? $coupon->code : null,
+                ]);
                 $booking = $this->createBooking($request);
                 // for cod payment method
                 if ($request->payment_method === 'cod') {
@@ -103,6 +135,15 @@ class BookingController extends Controller
                 $dates = $this->generateBookingDates($request);
                 $slots = $this->generateBookingSlots($booking, $dates, $request, false);
                 BookingSlot::insertOrIgnore($slots);
+                //  COUPON HISTORY
+                if ($coupon) {
+                    CouponHistory::create([
+                        'user_id' => auth()->id(),
+                        'booking_id' => $booking->id,
+                        'coupon_id' => $coupon->id,
+                        'discount_amount' => $discountAmount,
+                    ]);
+                }
                 // $result = $this->processBookingNotifications($booking, $slots, $address);
                 return $booking;
             });
@@ -234,13 +275,16 @@ class BookingController extends Controller
             'end_date' => $endDate,
             // 'time' => $request->time,
             'time' => $request->type === 'instant' ? now()->addMinutes(15)->format('H:i:s') : $request->time,
-            // 'transaction_id' => $request->transaction_id,
-            // 'payment_status' => $request->transaction_id ? 'done' : 'pending',
-            // 'recurring_data' => 
             'status' => 'pending',
             'address_id' => $request->addressId,
-            'total_price' => $request->total_price,
+
             'payment_method' => $request->payment_method,
+            // 'recurring_data' => $recurringData ? json_encode($recurringData) : null,
+            'total_price' => $request->total_price,
+            'original_price' => $request->original_price,
+            'discount_price' => $request->discount_price,
+            'coupon_id' => $request->coupon_id,
+            'coupon_code' => $request->coupon_code,
         ]);
     }
 
@@ -315,6 +359,7 @@ class BookingController extends Controller
 
     private function generateBookingSlots(Booking $booking, array $dates, Request $request, $isReschedule = false): array
     {
+        $slotCount = count($dates);
         if ($request->type === 'instant') {
             $startTime = now()->addMinutes(15);
         } else {
@@ -326,8 +371,19 @@ class BookingController extends Controller
         if ($request->type === 'instant') {
             $dates = [now()];
         }
+        /*
+        |--------------------------------------------------------------------------
+        | SLOT DISCOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        $perSlotDiscount = $slotCount > 0
+            ? $request->discount_price / $slotCount
+            : 0;
         $slots = [];
         foreach (collect($dates)->unique()->values() as $date) {
+                 $slotPrice = $request->price;
+                $slotFinalAmount = max($slotPrice - $perSlotDiscount, 0);
             $slots[] = [
                 'booking_id' => $booking->id,
                 'expert_id' => null,
@@ -335,13 +391,18 @@ class BookingController extends Controller
                 'start_time' => $startTime,
                 'end_time' => $endTime,
                 'duration' => $request->duration,
-                'status' => $request->payment_method == 'cod'? 'confirmed' : 'pending',
+                'status' => $request->payment_method == 'cod' ? 'confirmed' : 'pending',
                 'payment_method' => $request->payment_method,
                 'payment_status' => 'pending',
                 // 'status' => 'pending',
-                'price' => $request->price,
+                // 'price' => $request->price,
+                'price' => $request->discount_price > 0 ? $slotFinalAmount : $slotPrice,
                 'otp_code' => rand(100000, 999999),
                 'is_rescheduled' => $isReschedule ? 1 : 0,
+                'discount_price' => $request->discount_price > 0 ? $perSlotDiscount : 0,
+                'original_price' =>  $request->price,
+                'coupon_id' => $request->coupon_id,
+                'coupon_code' => $request->coupon_code,
             ];
         }
         return $slots;

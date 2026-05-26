@@ -31,6 +31,7 @@ class BookingResource extends JsonResource
             'created_at'=>$this->created_at,
             'payment_id'=>$this->payment_id,
             'payment_time'=>$this->payment_time,
+            'payment_method'=>$this->payment_method,
             // 'latitude' => $this->latitude,
             // 'longitude' => $this->longitude,
             // 'address' => $this->address,
@@ -66,7 +67,7 @@ class BookingResource extends JsonResource
                     'status' => $slot->status,
                     'amount'=>$slot->price,
                     'otp_code'=>$slot->otp_code,
-                    // 'payment_status'=>$slot->payment_status,
+                    'payment_status'=>$slot->payment_status,
 
                     //  Expert per slot
                     'expert' => $slot->expert ? [

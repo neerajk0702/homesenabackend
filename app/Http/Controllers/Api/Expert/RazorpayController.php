@@ -222,7 +222,7 @@ class RazorpayController extends Controller
 
                     $bookingSlot->update([
                         'payment_status' => 'paid',
-                        'payment_method' => 'cod/online',
+                        'payment_method' => 'cod',
                         'payment_id' => $paymentData['id'] ?? null,
                     ]);
                 }
@@ -383,7 +383,7 @@ class RazorpayController extends Controller
             BookingSlot::where('id', $bookingSlotId)
                 ->update([
                     'payment_status' => 'paid',
-                    'payment_method' => 'cod/online',
+                    'payment_method' => 'cod',
                     'payment_id' => $paymentId
                 ]);
 

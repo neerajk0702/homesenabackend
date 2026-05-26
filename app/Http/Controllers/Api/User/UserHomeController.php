@@ -196,6 +196,9 @@ class UserHomeController extends Controller
                 $q->where('user_id', auth()->id());
             })
             ->where('rating_popup_skipped', 0)
+            ->where('status', 'completed')
+            // rating not given
+            ->whereDoesntHave('review')
             ->latest()
             ->first();
 
@@ -222,8 +225,9 @@ class UserHomeController extends Controller
                 'data' => (object) []
             ]);
         }
-        $bookingSlot->rating_popup_skipped = 1;
-        $bookingSlot->save();
+        $bookingSlot->update([
+                  'rating_popup_skipped' => 1
+          ]);
         return response()->json([
             'code' => 200,
             'status' => true,

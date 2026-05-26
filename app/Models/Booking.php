@@ -18,7 +18,7 @@ class Booking extends Model
         'end_date',
         'time',
         'status',
-        'total_price',
+        'total_price',// final payable amount
         'payment_status',
         'payment_id',
         'payment_time',
@@ -26,7 +26,11 @@ class Booking extends Model
         'cancel_reason',
         'cancelled_at',
         'is_rescheduled',
-        'payment_method'
+        'payment_method',
+        'original_price',   // before coupon
+        'discount_price',   // coupon discount  
+        'coupon_id' ,
+        'coupon_code' ,  
     ];
 
     protected $casts = [

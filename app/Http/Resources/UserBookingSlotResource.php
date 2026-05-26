@@ -25,6 +25,8 @@ class UserBookingSlotResource extends JsonResource
             'price' => $this->price,
             'check_in_time' => $this->check_in_time,
             'otp_code'=>$this->otp_code,
+            'payment_status'=>$this->payment_status,
+            'payment_method'=>$this->payment_method,
 
 
             //  BOOKING INFO
@@ -41,7 +43,8 @@ class UserBookingSlotResource extends JsonResource
                 'payment_id'=>$this->booking?->payment_id ?? null,
                 'payment_time'=>$this->booking?->payment_time ?? null,
                 'payment_status'=>$this->booking?->payment_status ?? null,
-                 'created_at'=>$this->booking?->created_at,
+                'payment_method'=>$this->booking?->payment_method ?? null,
+                'created_at'=>$this->booking?->created_at,
 
                 //  SERVICE
                 'service' => [

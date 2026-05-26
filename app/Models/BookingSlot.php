@@ -17,7 +17,7 @@ class BookingSlot extends Model
         'otp_attrempts',
         'otp_verified',
         'status',
-        'price',
+        'price', // final payable amount
         'payment_status',
         'check_in_time',
         'cancel_reason',
@@ -29,7 +29,11 @@ class BookingSlot extends Model
         'end_notification_sent_at',
         'payment_method',
         'payment_id',
-        'rating_popup_skipped'
+        'rating_popup_skipped',
+        'original_price',   // before coupon
+        'discount_price',   // coupon discount  
+        'coupon_id',
+        'coupon_code',
 
     ];
 
@@ -45,20 +49,25 @@ class BookingSlot extends Model
 
     public function expert()
     {
-        return $this->belongsTo(User::class,'expert_id');
+        return $this->belongsTo(User::class, 'expert_id');
     }
 
     public function review()
     {
-        return $this->hasOne(Review::class,'booking_slot_id');
+        return $this->hasOne(Review::class, 'booking_slot_id');
     }
     public function expertSos()
     {
-        return $this->hasOne(ExpertSOS::class,'booking_slot_id');
+        return $this->hasOne(ExpertSOS::class, 'booking_slot_id');
     }
     // public function invoice()
     // {
     //     return $this->morphOne(Invoice::class, 'invoiceable')
     //                 ->where('type', 'slot');
     // }
+
+    public function extensions()
+    {
+        return $this->hasMany(BookingExtension::class);
+    }
 }
